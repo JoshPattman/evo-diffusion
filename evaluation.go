@@ -11,11 +11,11 @@ func Evaluate(g *Genotype, target *mat.VecDense, l2 float64) float64 {
 	result := g.Generate()
 	diff := mat.NewVecDense(result.Len(), nil)
 	diff.SubVec(target, result)
-	diff.MulElemVec(diff, diff)
-	mse := mat.Sum(diff) / float64(diff.Len())
-	wm := mat.NewDense(g.matrix.RawMatrix().Rows, g.matrix.RawMatrix().Cols, nil)
-	wm.MulElem(g.matrix, g.matrix)
-	ml2 := mat.Sum(wm) / float64(wm.RawMatrix().Rows*wm.RawMatrix().Cols)
+	diffNorm := diff.Norm(2)
+	mse := (diffNorm * diffNorm) / float64(diff.Len())
+	wmNorm := g.matrix.Norm(2)
+	r, c := g.matrix.Dims()
+	ml2 := (wmNorm * wmNorm) / float64(r*c)
 	return -mse - l2*ml2
 }
 

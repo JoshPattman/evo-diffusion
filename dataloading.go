@@ -12,30 +12,39 @@ import (
 	"gonum.org/v1/gonum/mat"
 )
 
-func LoadDataset(dataPath string) ([]*mat.VecDense, error) {
+func LoadDataset(dataPath string) ([]*mat.VecDense, int, error) {
 	// Find all subfolders in the data path
 	subfolders, err := os.ReadDir(dataPath)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	images := make([]*mat.VecDense, 0)
+	imgSize := -1
 	for _, subfolder := range subfolders {
 		subfolderPath := path.Join(dataPath, subfolder.Name())
 		// Find all files in the subfolder
 		files, err := os.ReadDir(subfolderPath)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		for _, file := range files {
 			filePath := path.Join(subfolderPath, file.Name())
 			f, err := os.Open(filePath)
 			if err != nil {
-				return nil, err
+				return nil, 0, err
 			}
 			defer f.Close()
 			img, err := jpeg.Decode(f)
 			if err != nil {
-				return nil, err
+				return nil, 0, err
+			}
+			if img.Bounds().Dx() != img.Bounds().Dy() {
+				panic("Image is not square")
+			}
+			if imgSize == -1 {
+				imgSize = img.Bounds().Dx()
+			} else if imgSize != img.Bounds().Dx() {
+				panic("Image size mismatch, all images must be the same size")
 			}
 			// Convert the image to a vector
 			vec := Img2Vec(img)
@@ -45,7 +54,7 @@ func LoadDataset(dataPath string) ([]*mat.VecDense, error) {
 	rand.Shuffle(len(images), func(i, j int) {
 		images[i], images[j] = images[j], images[i]
 	})
-	return images, nil
+	return images, imgSize, nil
 }
 
 func Vec2Img(v *mat.VecDense) image.Image {
