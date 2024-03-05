@@ -1,7 +1,6 @@
 package main
 
 import (
-	"math"
 	"math/rand"
 
 	"gonum.org/v1/gonum/mat"
@@ -15,17 +14,13 @@ type Genotype struct {
 	iterations int
 }
 
-func NewGenotype(size int, maxWeightInit float64) *Genotype {
-	matrixData := make([]float64, size*size)
-	for i := 0; i < size*size; i++ {
-		matrixData[i] = maxWeightInit * (rand.Float64()*2 - 1)
-	}
+func NewGenotype(size int) *Genotype {
 	return &Genotype{
-		matrix:     mat.NewDense(size, size, matrixData),
+		matrix:     mat.NewDense(size, size, nil),
 		vector:     mat.NewVecDense(size, nil),
 		updateRate: 1,
 		decayRate:  0.2,
-		iterations: 5,
+		iterations: 10,
 	}
 }
 
@@ -41,51 +36,22 @@ func (g *Genotype) Generate() *mat.VecDense {
 		result.ScaleVec(1-g.decayRate, result)
 		// Now, result is the final sum
 		result.AddVec(result, tempResult)
-		// NOT THE SAME AS IN THE PAPER:
+		// Clamp to -1-1
 		ApplyAllVec(result, clamp(0, 1))
 	}
 	return result
 }
 
-func tanh(x float64) float64 {
-	return math.Tanh(x)
-}
-
-func sigmoid(x float64) float64 {
-	return 1.0 / (1.0 + math.Exp(-x))
-}
-func clamp(min, max float64) func(float64) float64 {
-	return func(x float64) float64 {
-		if x < min {
-			return min
-		} else if x > max {
-			return max
-		}
-		return x
-	}
-}
-
-func (g *Genotype) Mutate(matrixRate, matrixAmount, vectorRate, vectorAmount, zeroMatProb float64) {
-	r, c := g.matrix.Dims()
-	matrixData := make([]float64, r*c)
-	for i := range matrixData {
-		if rand.Float64() < matrixRate {
-			matrixData[i] = matrixAmount * (rand.Float64()*2 - 1)
-		}
+func (g *Genotype) Mutate(matrixAmount, matrixProb, vectorAmount float64) {
+	if rand.Float64() < matrixProb {
+		r, c := g.matrix.Dims()
+		ri, ci := rand.Intn(r), rand.Intn(c)
+		g.matrix.Set(ri, ci, g.matrix.At(ri, ci)+matrixAmount*(rand.Float64()*2-1))
 	}
 
 	d := g.vector.Len()
-	vectorData := make([]float64, d)
-	for i := range vectorData {
-		if rand.Float64() < vectorRate {
-			vectorData[i] = vectorAmount * (rand.Float64()*2 - 1)
-		}
-	}
-
-	g.matrix.Add(g.matrix, mat.NewDense(r, c, matrixData))
-
-	g.vector.AddVec(g.vector, mat.NewVecDense(d, vectorData))
-	ApplyAllVec(g.vector, clamp(0, 1))
+	di := rand.Intn(d)
+	g.vector.SetVec(di, clamp(0, 1)(g.vector.AtVec(di)+vectorAmount*(rand.Float64()*2-1)))
 }
 
 func (g *Genotype) CopySrcVec(src *mat.VecDense) {
@@ -103,17 +69,4 @@ func NewSrcVec(size int) *mat.VecDense {
 		vecData[i] = rand.Float64()
 	}
 	return mat.NewVecDense(size, vecData)
-}
-
-func ApplyAllVec(v *mat.VecDense, f func(float64) float64) {
-	for i := range v.RawVector().Data {
-		v.RawVector().Data[i] = f(v.RawVector().Data[i])
-
-	}
-}
-
-func ApplyAllMat(m *mat.Dense, f func(float64) float64) {
-	for i := range m.RawMatrix().Data {
-		m.RawMatrix().Data[i] = f(m.RawMatrix().Data[i])
-	}
 }

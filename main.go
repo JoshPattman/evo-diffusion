@@ -11,11 +11,11 @@ import (
 
 func main() {
 	iterations := 2000000000
-	subiterations := 20
+	subiterations := 100
 	l2Norm := 200.0
 	imgSize := 10
 	logEvery := 200
-	datasetPath := "/home/joshpattman/Documents/Coding/datasets/mnist100"
+	datasetPath := "./dataset-simple"
 
 	imgVolume := imgSize * imgSize
 
@@ -25,8 +25,8 @@ func main() {
 	}
 	fmt.Println("Loaded", len(images), "images")
 
-	genBest := NewGenotype(imgVolume, 0.1)
-	genTest := NewGenotype(imgVolume, 0.1)
+	genBest := NewGenotype(imgVolume)
+	genTest := NewGenotype(imgVolume)
 	startTime := time.Now()
 	for it := 0; it < iterations; it++ {
 		if time.Since(startTime) > 8*time.Hour {
@@ -34,14 +34,14 @@ func main() {
 		}
 
 		//tar := images[rand.Intn(len(images))]
-		tar := images[rand.Intn(10)]
+		tar := images[rand.Intn(1)]
 		src := NewSrcVec(imgVolume)
 
 		genTest.CopySrcVec(src)
 		genBest.CopySrcVec(src)
 		genBestEval := Evaluate(genBest, tar, l2Norm)
 		for sit := 0; sit < subiterations; sit++ {
-			genTest.Mutate(0.002, 0.015, 0.1, 0.2, 0)
+			genTest.Mutate(0.0067, 0.067, 0.1)
 			testEval := Evaluate(genTest, tar, l2Norm)
 			if testEval > genBestEval {
 				genBest.CopyGenotypeFrom(genTest)
