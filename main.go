@@ -4,18 +4,18 @@ import (
 	"fmt"
 	"image"
 	"image/png"
-	"math/rand"
+	"math"
 	"os"
 	"time"
 )
 
 func main() {
 	iterations := 2000000000
-	subiterations := 20
-	l2Norm := 200.0
+	subiterations := 500
+	l2Norm := 0.0
 	imgSize := 10
-	logEvery := 200
-	datasetPath := "/home/joshpattman/Documents/Coding/datasets/mnist100"
+	logEvery := 2
+	datasetPath := "./dataset-simple"
 
 	imgVolume := imgSize * imgSize
 
@@ -25,33 +25,44 @@ func main() {
 	}
 	fmt.Println("Loaded", len(images), "images")
 
-	genBest := NewGenotype(imgVolume, 0.1)
-	genTest := NewGenotype(imgVolume, 0.1)
+	generation := make([]*Genotype, 10)
+	for gi := range generation {
+		generation[gi] = NewGenotype(imgVolume, 0.1)
+	}
 	startTime := time.Now()
 	for it := 0; it < iterations; it++ {
 		if time.Since(startTime) > 8*time.Hour {
 			break
 		}
 
-		//tar := images[rand.Intn(len(images))]
-		tar := images[rand.Intn(10)]
+		tar := images[0] //images[rand.Intn(len(images))] // //
 		src := NewSrcVec(imgVolume)
 
-		genTest.CopySrcVec(src)
-		genBest.CopySrcVec(src)
-		genBestEval := Evaluate(genBest, tar, l2Norm)
+		for gi := range generation {
+			generation[gi].CopySrcVec(src)
+		}
+		itBestEval := -99.0
 		for sit := 0; sit < subiterations; sit++ {
-			genTest.Mutate(0.002, 0.015, 0.1, 0.2, 0)
-			testEval := Evaluate(genTest, tar, l2Norm)
-			if testEval > genBestEval {
-				genBest.CopyGenotypeFrom(genTest)
-				genBestEval = testEval
-			} else {
-				genTest.CopyGenotypeFrom(genBest)
+			bestEvaluation := math.Inf(-1)
+			bestIndex := -1
+			for gi := range generation {
+				generation[gi].Mutate(0.1, 0.03, 0.3, 0.15, 0)
+				evaluation := Evaluate(generation[gi], tar, l2Norm)
+				if evaluation > bestEvaluation {
+					bestEvaluation = evaluation
+					bestIndex = gi
+				}
 			}
+			for gi := range generation {
+				if gi != bestIndex {
+					generation[gi].CopyGenotypeFrom(generation[bestIndex])
+				}
+			}
+			itBestEval = bestEvaluation
 		}
 		if (it+1)%logEvery == 0 || it == 0 {
-			fmt.Println("Iteration", it, "best eval", genBestEval)
+			fmt.Println("Iteration", it, "best eval", itBestEval)
+			genBest := generation[0]
 			SaveImg("imgs/src.png", Vec2Img(src))
 			SaveImg("imgs/tar.png", Vec2Img(tar))
 			res := genBest.Generate()
