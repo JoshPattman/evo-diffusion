@@ -42,6 +42,27 @@ func (g *Genotype) Generate() *mat.VecDense {
 	return result
 }
 
+func (g *Genotype) GenerateWithIntermediate() []*mat.VecDense {
+	results := make([]*mat.VecDense, g.iterations+1)
+	result := mat.VecDenseCopyOf(g.vector)
+	results[0] = mat.VecDenseCopyOf(result)
+	tempResult := mat.NewVecDense(result.Len(), nil)
+	for i := 0; i < g.iterations; i++ {
+		tempResult.MulVec(g.matrix, result)
+		ApplyAllVec(tempResult, tanh)
+		// At this point, tempResult = t_1 * a(BxP(t))
+		tempResult.ScaleVec(g.updateRate, tempResult)
+		// At this point, result = P(t) - t_2 * P(t) = (1-t_2) * P(t)
+		result.ScaleVec(1-g.decayRate, result)
+		// Now, result is the final sum
+		result.AddVec(result, tempResult)
+		// Clamp to -1-1
+		ApplyAllVec(result, clamp(0, 1))
+		results[i+1] = mat.VecDenseCopyOf(result)
+	}
+	return results
+}
+
 func (g *Genotype) Mutate(matrixAmount, matrixProb, vectorAmount float64) {
 	if rand.Float64() < matrixProb {
 		r, c := g.matrix.Dims()

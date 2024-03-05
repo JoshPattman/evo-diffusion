@@ -3,18 +3,21 @@ package main
 import (
 	"fmt"
 	"image"
+	"image/color"
+	"image/draw"
 	"image/png"
-	"math/rand"
 	"os"
 	"time"
+
+	"gonum.org/v1/gonum/mat"
 )
 
 func main() {
-	iterations := 2000000000
-	subiterations := 100
-	l2Norm := 200.0
+	iterations := 10000000
+	subiterations := 2000
+	l2Norm := 0.0
 	imgSize := 10
-	logEvery := 200
+	logEvery := 5
 	datasetPath := "./dataset-simple"
 
 	imgVolume := imgSize * imgSize
@@ -29,12 +32,12 @@ func main() {
 	genTest := NewGenotype(imgVolume)
 	startTime := time.Now()
 	for it := 0; it < iterations; it++ {
-		if time.Since(startTime) > 8*time.Hour {
+		if time.Since(startTime) > 5*time.Minute {
 			break
 		}
 
 		//tar := images[rand.Intn(len(images))]
-		tar := images[rand.Intn(1)]
+		tar := images[it%2]
 		src := NewSrcVec(imgVolume)
 
 		genTest.CopySrcVec(src)
@@ -59,6 +62,27 @@ func main() {
 			SaveImg("imgs/mat.png", Mat2Img(genBest.matrix))
 			SaveImg("imgs/vec.png", Vec2Img(genBest.vector))
 		}
+	}
+
+	fmt.Println("Finished in", time.Since(startTime))
+
+	{
+		rows := 10
+		resultss := make([][]*mat.VecDense, rows)
+		for i := range resultss {
+			src := NewSrcVec(imgVolume)
+			genBest.CopySrcVec(src)
+			resultss[i] = genBest.GenerateWithIntermediate()
+		}
+
+		img := image.NewRGBA(image.Rect(0, 0, 1+(imgSize+1)*(genBest.iterations+1), 1+(imgSize+1)*rows))
+		draw.Draw(img, img.Bounds(), &image.Uniform{color.RGBA{100, 100, 0, 255}}, image.Point{}, draw.Src)
+		for irow, results := range resultss {
+			for icol, res := range results {
+				draw.Draw(img, image.Rect(1+icol*(imgSize+1), 1+irow*(imgSize+1), 1+(icol+1)*(imgSize+1), 1+(irow+1)*(imgSize+1)), Vec2Img(res), image.Point{}, draw.Src)
+			}
+		}
+		SaveImg("imgs/intermediate.png", img)
 	}
 }
 

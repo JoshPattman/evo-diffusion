@@ -70,8 +70,8 @@ func Mat2Img(m *mat.Dense) image.Image {
 	img := image.NewGray(image.Rect(0, 0, r, c))
 	for i := 0; i < r; i++ {
 		for j := 0; j < c; j++ {
-			v := sigmoid(m.At(i, j)) // Apply sigmoid here to map matrix values into nice range
-			v = clamp(0, 1)(v)
+			//v := sigmoid(m.At(i, j)) // Apply sigmoid here to map matrix values into nice range
+			v := clamp(-1, 1)(m.At(i, j))/2 + 0.5 // Apply sigmoid here to map matrix values into nice range
 			img.SetGray(i, j, color.Gray{Y: uint8(v * 255)})
 		}
 	}
