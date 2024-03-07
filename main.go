@@ -113,7 +113,7 @@ func main() {
 	SaveImg("imgs/intermediate.png", GenerateIntermediateDiagram(genBest, 50, imgSize))
 }
 
-func GenerateIntermediateDiagram(g *Genotype, rows, imgSize int) image.Image {
+func GenerateIntermediateDiagram(g *OldGenotype, rows, imgSize int) image.Image {
 	imgVolume := imgSize * imgSize
 	resultss := make([][]*mat.VecDense, rows)
 	for i := range resultss {

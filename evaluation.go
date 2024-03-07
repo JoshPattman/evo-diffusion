@@ -7,7 +7,7 @@ import (
 )
 
 // Evaluation of 0 is best, -1 is worst
-func Evaluate(g *Genotype, target *mat.VecDense, l2 float64) float64 {
+func Evaluate(g *OldGenotype, target *mat.VecDense, l2 float64) float64 {
 	result := g.Generate()
 	mse := imgMse(result, target)
 	ml2 := l2Loss(g)
@@ -22,7 +22,7 @@ func imgMse(predicted, target *mat.VecDense) float64 {
 	return mse
 }
 
-func l2Loss(g *Genotype) float64 {
+func l2Loss(g *OldGenotype) float64 {
 	wmNorm := g.Matrix.Norm(2)
 	r, c := g.Matrix.Dims()
 	ml2 := (wmNorm * wmNorm) / float64(r*c)
