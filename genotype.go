@@ -7,33 +7,33 @@ import (
 )
 
 type Genotype struct {
-	matrix     *mat.Dense
-	vector     *mat.VecDense
-	updateRate float64 // tau1
-	decayRate  float64 // tau2
-	iterations int
+	Matrix     *mat.Dense
+	Vector     *mat.VecDense
+	UpdateRate float64 // tau1
+	DecayRate  float64 // tau2
+	Iterations int
 }
 
 func NewGenotype(size int) *Genotype {
 	return &Genotype{
-		matrix:     mat.NewDense(size, size, nil),
-		vector:     mat.NewVecDense(size, nil),
-		updateRate: 1,
-		decayRate:  0.2,
-		iterations: 10,
+		Matrix:     mat.NewDense(size, size, nil),
+		Vector:     mat.NewVecDense(size, nil),
+		UpdateRate: 1,
+		DecayRate:  0.2,
+		Iterations: 10,
 	}
 }
 
 func (g *Genotype) Generate() *mat.VecDense {
-	result := mat.VecDenseCopyOf(g.vector)
+	result := mat.VecDenseCopyOf(g.Vector)
 	tempResult := mat.NewVecDense(result.Len(), nil)
-	for i := 0; i < g.iterations; i++ {
-		tempResult.MulVec(g.matrix, result)
+	for i := 0; i < g.Iterations; i++ {
+		tempResult.MulVec(g.Matrix, result)
 		ApplyAllVec(tempResult, tanh)
 		// At this point, tempResult = t_1 * a(BxP(t))
-		tempResult.ScaleVec(g.updateRate, tempResult)
+		tempResult.ScaleVec(g.UpdateRate, tempResult)
 		// At this point, result = P(t) - t_2 * P(t) = (1-t_2) * P(t)
-		result.ScaleVec(1-g.decayRate, result)
+		result.ScaleVec(1-g.DecayRate, result)
 		// Now, result is the final sum
 		result.AddVec(result, tempResult)
 		// Clamp to -1-1
@@ -43,17 +43,17 @@ func (g *Genotype) Generate() *mat.VecDense {
 }
 
 func (g *Genotype) GenerateWithIntermediate() []*mat.VecDense {
-	results := make([]*mat.VecDense, g.iterations+1)
-	result := mat.VecDenseCopyOf(g.vector)
+	results := make([]*mat.VecDense, g.Iterations+1)
+	result := mat.VecDenseCopyOf(g.Vector)
 	results[0] = mat.VecDenseCopyOf(result)
 	tempResult := mat.NewVecDense(result.Len(), nil)
-	for i := 0; i < g.iterations; i++ {
-		tempResult.MulVec(g.matrix, result)
+	for i := 0; i < g.Iterations; i++ {
+		tempResult.MulVec(g.Matrix, result)
 		ApplyAllVec(tempResult, tanh)
 		// At this point, tempResult = t_1 * a(BxP(t))
-		tempResult.ScaleVec(g.updateRate, tempResult)
+		tempResult.ScaleVec(g.UpdateRate, tempResult)
 		// At this point, result = P(t) - t_2 * P(t) = (1-t_2) * P(t)
-		result.ScaleVec(1-g.decayRate, result)
+		result.ScaleVec(1-g.DecayRate, result)
 		// Now, result is the final sum
 		result.AddVec(result, tempResult)
 		// Clamp to -1-1
@@ -65,23 +65,23 @@ func (g *Genotype) GenerateWithIntermediate() []*mat.VecDense {
 
 func (g *Genotype) Mutate(matrixAmount, matrixProb, vectorAmount float64) {
 	if rand.Float64() < matrixProb {
-		r, c := g.matrix.Dims()
+		r, c := g.Matrix.Dims()
 		ri, ci := rand.Intn(r), rand.Intn(c)
-		g.matrix.Set(ri, ci, g.matrix.At(ri, ci)+matrixAmount*(rand.Float64()*2-1))
+		g.Matrix.Set(ri, ci, g.Matrix.At(ri, ci)+matrixAmount*(rand.Float64()*2-1))
 	}
 
-	d := g.vector.Len()
+	d := g.Vector.Len()
 	di := rand.Intn(d)
-	g.vector.SetVec(di, clamp(0, 1)(g.vector.AtVec(di)+vectorAmount*(rand.Float64()*2-1)))
+	g.Vector.SetVec(di, clamp(0, 1)(g.Vector.AtVec(di)+vectorAmount*(rand.Float64()*2-1)))
 }
 
 func (g *Genotype) CopySrcVec(src *mat.VecDense) {
-	g.vector.CopyVec(src)
+	g.Vector.CopyVec(src)
 }
 
 func (g *Genotype) CopyGenotypeFrom(other *Genotype) {
-	g.matrix.Copy(other.matrix)
-	g.vector.CopyVec(other.vector)
+	g.Matrix.Copy(other.Matrix)
+	g.Vector.CopyVec(other.Vector)
 }
 
 func NewSrcVec(size int) *mat.VecDense {

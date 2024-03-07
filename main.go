@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"image"
 	"image/color"
@@ -14,10 +15,10 @@ import (
 
 func main() {
 	// Algorithm tunable params
-	generations := 800000000
+	maxDuration := 8 * time.Hour
 	resetTargetEvery := 2000
 	logEvery := 100
-	drawEvery := resetTargetEvery * 5
+	drawEvery := resetTargetEvery * 15
 	l2Norm := 0.0
 	datasetPath := "./dataset-simple"
 
@@ -26,7 +27,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	images = images[:2]
+	//images = images[:2]
 	imgVolume := imgSize * imgSize
 	fmt.Println("Loaded", len(images), "images")
 
@@ -48,9 +49,11 @@ func main() {
 	var src *mat.VecDense
 	bestEval := math.Inf(-1)
 	// Main loop
-	for gen := 1; gen <= generations; gen++ {
+	gen := 0
+	for {
+		gen++
 		// Stop training if time exceeds 5 minutes
-		if time.Since(startTime) > 15*time.Minute {
+		if time.Since(startTime) > maxDuration {
 			break
 		}
 
@@ -81,14 +84,27 @@ func main() {
 
 		// Draw the images every drawEvery generations
 		if gen%drawEvery == 0 || gen == 1 {
-			fmt.Println("Generation", gen, "best eval", bestEval)
+			fmt.Printf("G %v (%v): %3f\n", gen, time.Since(startTime), bestEval)
 			res := genBest.Generate()
 			SaveImg("imgs/src.png", Vec2Img(src))
 			SaveImg("imgs/tar.png", Vec2Img(tar))
 			SaveImg("imgs/res.png", Vec2Img(res))
-			SaveImg("imgs/mat.png", Mat2Img(genBest.matrix))
-			SaveImg("imgs/vec.png", Vec2Img(genBest.vector))
+			SaveImg("imgs/mat.png", Mat2Img(genBest.Matrix))
+			SaveImg("imgs/vec.png", Vec2Img(genBest.Vector))
 			SaveImg("imgs/int.png", GenerateIntermediateDiagram(genBest, 10, imgSize))
+			// gob encode the genotype
+			func() {
+				f, err := os.Create("imgs/gen.gob")
+				if err != nil {
+					panic(err)
+				}
+				defer f.Close()
+				enc := gob.NewEncoder(f)
+				err = enc.Encode(genBest)
+				if err != nil {
+					panic(err)
+				}
+			}()
 		}
 	}
 
@@ -106,7 +122,7 @@ func GenerateIntermediateDiagram(g *Genotype, rows, imgSize int) image.Image {
 		resultss[i] = g.GenerateWithIntermediate()
 	}
 
-	img := image.NewRGBA(image.Rect(0, 0, 1+(imgSize+1)*(g.iterations+1), 1+(imgSize+1)*rows))
+	img := image.NewRGBA(image.Rect(0, 0, 1+(imgSize+1)*(g.Iterations+1), 1+(imgSize+1)*rows))
 	draw.Draw(img, img.Bounds(), &image.Uniform{color.RGBA{100, 100, 0, 255}}, image.Point{}, draw.Src)
 	for irow, results := range resultss {
 		for icol, res := range results {

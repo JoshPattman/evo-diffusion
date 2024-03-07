@@ -13,8 +13,8 @@ func Evaluate(g *Genotype, target *mat.VecDense, l2 float64) float64 {
 	diff.SubVec(target, result)
 	diffNorm := diff.Norm(2)
 	mse := (diffNorm * diffNorm) / float64(diff.Len())
-	wmNorm := g.matrix.Norm(2)
-	r, c := g.matrix.Dims()
+	wmNorm := g.Matrix.Norm(2)
+	r, c := g.Matrix.Dims()
 	ml2 := (wmNorm * wmNorm) / float64(r*c)
 	return -mse - l2*ml2
 }
