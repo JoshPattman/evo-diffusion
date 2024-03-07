@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"image"
+	"image/color"
+	"image/draw"
 	"math"
 	"math/rand"
 	"os"
@@ -15,8 +18,8 @@ func main() {
 	maxDuration := 8 * time.Hour
 	resetTargetEvery := 2000
 	logEvery := 100
-	drawEvery := resetTargetEvery * 15
-	datasetPath := "./dataset-simple"
+	drawEvery := resetTargetEvery * 45
+	datasetPath := "./dataset-simpler"
 
 	// Algorithm tunable params
 	weightMutationMax := 0.0067
@@ -31,7 +34,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	images = images[:2]
+	//images = images[:2]
 	imgVolume := imgSize * imgSize
 	fmt.Println("Loaded", len(images), "images")
 
@@ -39,9 +42,9 @@ func main() {
 	bestGenotype := NewGenotype(imgVolume, vecMutationAmount)
 	testGenotype := NewGenotype(imgVolume, vecMutationAmount)
 	testGenotype.CopyFrom(bestGenotype)
-	bestDenseReg := NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
-	testDenseReg := NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
-	testDenseReg.CopyFrom(bestDenseReg)
+	bestRegNet := NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
+	testRegNet := NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
+	testRegNet.CopyFrom(bestRegNet)
 
 	// Create the log file
 	logFile, err := os.Create("./imgs/log.csv")
@@ -67,24 +70,24 @@ func main() {
 		if (gen-1)%resetTargetEvery == 0 {
 			tar = images[(gen/resetTargetEvery)%len(images)]
 			bestGenotype = NewGenotype(bestGenotype.Vector.Len(), bestGenotype.ValsMaxMut)
-			bestEval = Evaluate(bestGenotype, bestDenseReg, tar, timesteps)
+			bestEval = Evaluate(bestGenotype, bestRegNet, tar, timesteps)
 		}
 
 		// Mutate the test genotype and evaluate it
 		testGenotype.Mutate()
 		if rand.Float64() < weightMutationChance {
-			testDenseReg.Mutate()
+			testRegNet.Mutate()
 		}
 
-		testEval := Evaluate(testGenotype, testDenseReg, tar, timesteps)
+		testEval := Evaluate(testGenotype, testRegNet, tar, timesteps)
 		// If the test genotype is better than the best genotype, copy it over, otherwise reset to prev best
 		if testEval > bestEval {
 			bestGenotype.CopyFrom(testGenotype)
-			bestDenseReg.CopyFrom(testDenseReg)
+			bestRegNet.CopyFrom(testRegNet)
 			bestEval = testEval
 		} else {
 			testGenotype.CopyFrom(bestGenotype)
-			testDenseReg.CopyFrom(bestDenseReg)
+			testRegNet.CopyFrom(bestRegNet)
 		}
 
 		// Add to the log file every logEvery generations
@@ -95,13 +98,31 @@ func main() {
 		// Draw the images every drawEvery generations
 		if gen%drawEvery == 0 || gen == 1 {
 			fmt.Printf("G %v (%v): %3f\n", gen, time.Since(startTime), bestEval)
-			res := bestDenseReg.Run(bestGenotype.Vector, timesteps)
+			res := bestRegNet.Run(bestGenotype.Vector, timesteps)
 			SaveImg("imgs/tar.png", Vec2Img(tar))
 			SaveImg("imgs/res.png", Vec2Img(res))
-			SaveImg("imgs/mat.png", Mat2Img(bestDenseReg.Weights))
+			SaveImg("imgs/mat.png", Mat2Img(bestRegNet.Weights))
 			SaveImg("imgs/vec.png", Vec2Img(bestGenotype.Vector))
+			SaveImg("imgs/int.png", GenerateIntermediateDiagram(bestRegNet, 20, timesteps*2, imgSize))
 		}
 	}
 
 	fmt.Println("Finished in", time.Since(startTime))
+}
+
+func GenerateIntermediateDiagram(r RegNetwork, rows, timesteps, imgSize int) image.Image {
+	imgVolume := imgSize * imgSize
+	resultss := make([][]*mat.VecDense, rows)
+	for i := range resultss {
+		resultss[i] = r.RunWithIntermediateStates(NewGenotype(imgVolume, 0).Vector, timesteps)
+	}
+
+	img := image.NewRGBA(image.Rect(0, 0, 1+(imgSize+1)*(timesteps+1), 1+(imgSize+1)*rows))
+	draw.Draw(img, img.Bounds(), &image.Uniform{color.RGBA{100, 100, 0, 255}}, image.Point{}, draw.Src)
+	for irow, results := range resultss {
+		for icol, res := range results {
+			draw.Draw(img, image.Rect(1+icol*(imgSize+1), 1+irow*(imgSize+1), 1+(icol+1)*(imgSize+1), 1+(irow+1)*(imgSize+1)), Vec2Img(res), image.Point{}, draw.Src)
+		}
+	}
+	return img
 }
