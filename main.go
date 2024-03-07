@@ -32,8 +32,8 @@ func main() {
 	bestGenotype := NewGenotype(imgVolume, 0.1)
 	testGenotype := NewGenotype(imgVolume, 0.1)
 	testGenotype.CopyFrom(bestGenotype)
-	bestDenseReg := NewDenseRegNetwork(imgVolume, 1, 0.2, 0.067)
-	testDenseReg := NewDenseRegNetwork(imgVolume, 1, 0.2, 0.067)
+	bestDenseReg := NewDenseRegNetwork(imgVolume, 1, 0.2, 0.0067)
+	testDenseReg := NewDenseRegNetwork(imgVolume, 1, 0.2, 0.0067)
 	testDenseReg.CopyFrom(bestDenseReg)
 
 	// Create the log file
