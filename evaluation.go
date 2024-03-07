@@ -9,14 +9,24 @@ import (
 // Evaluation of 0 is best, -1 is worst
 func Evaluate(g *Genotype, target *mat.VecDense, l2 float64) float64 {
 	result := g.Generate()
-	diff := mat.NewVecDense(result.Len(), nil)
-	diff.SubVec(target, result)
+	mse := imgMse(result, target)
+	ml2 := l2Loss(g)
+	return -mse - l2*ml2
+}
+
+func imgMse(predicted, target *mat.VecDense) float64 {
+	diff := mat.NewVecDense(predicted.Len(), nil)
+	diff.SubVec(target, predicted)
 	diffNorm := diff.Norm(2)
 	mse := (diffNorm * diffNorm) / float64(diff.Len())
+	return mse
+}
+
+func l2Loss(g *Genotype) float64 {
 	wmNorm := g.Matrix.Norm(2)
 	r, c := g.Matrix.Dims()
 	ml2 := (wmNorm * wmNorm) / float64(r*c)
-	return -mse - l2*ml2
+	return ml2
 }
 
 func NewRandTarVec(size int) *mat.VecDense {
