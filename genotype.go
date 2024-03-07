@@ -6,6 +6,17 @@ import (
 	"gonum.org/v1/gonum/mat"
 )
 
+func NewGenotype(length int, maxMut float64) *Genotype {
+	data := make([]float64, length)
+	for i := range data {
+		data[i] = rand.Float64()
+	}
+	return &Genotype{
+		ValsMaxMut: maxMut,
+		Vector:     mat.NewVecDense(length, data),
+	}
+}
+
 // Genotype wraps a vector that represents the initial state of a regulatory network
 // It can be mutated and copied
 type Genotype struct {

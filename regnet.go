@@ -15,6 +15,15 @@ type RegNetwork interface {
 	CopyFrom(other RegNetwork)
 }
 
+func NewDenseRegNetwork(nodes int, updateRate float64, decayRate float64, weightsMaxMult float64) *DenseRegNetwork {
+	return &DenseRegNetwork{
+		Weights:       mat.NewDense(nodes, nodes, nil),
+		UpdateRate:    updateRate,
+		DecayRate:     decayRate,
+		WeightsMaxMut: weightsMaxMult,
+	}
+}
+
 type DenseRegNetwork struct {
 	// The weights between the nodes in the network
 	Weights *mat.Dense
@@ -47,7 +56,8 @@ func (d *DenseRegNetwork) Mutate() {
 	r, c := d.Weights.Dims()
 	ri := rand.Intn(r)
 	ci := rand.Intn(c)
-	d.Weights.Set(ri, ci, d.Weights.At(ri, ci)+d.WeightsMaxMut*(rand.Float64()*2-1))
+	addition := d.WeightsMaxMut * (rand.Float64()*2 - 1)
+	d.Weights.Set(ri, ci, d.Weights.At(ri, ci)+addition)
 }
 
 func (d *DenseRegNetwork) CopyFrom(other RegNetwork) {
