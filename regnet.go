@@ -35,7 +35,7 @@ type DenseRegNetwork struct {
 	WeightsMaxMut float64
 }
 
-func (d *DenseRegNetwork) Run(genotype *mat.VecDense, timesteps int) (phenotype *mat.VecDense) {
+func (d *DenseRegNetwork) Run(genotype *mat.VecDense, timesteps int) *mat.VecDense {
 	state := mat.VecDenseCopyOf(genotype)
 	stateUpdate := mat.NewVecDense(state.Len(), nil)
 	for i := 0; i < timesteps; i++ {
@@ -50,6 +50,26 @@ func (d *DenseRegNetwork) Run(genotype *mat.VecDense, timesteps int) (phenotype 
 		ApplyAllVec(state, clamp(0, 1))
 	}
 	return state
+}
+
+func (d *DenseRegNetwork) RunWithIntermediateStates(genotype *mat.VecDense, timesteps int) []*mat.VecDense {
+	states := make([]*mat.VecDense, timesteps+1)
+	state := mat.VecDenseCopyOf(genotype)
+	states[0] = mat.VecDenseCopyOf(state)
+	stateUpdate := mat.NewVecDense(state.Len(), nil)
+	for i := 0; i < timesteps; i++ {
+		// Multiply weights by state and apply tanh
+		stateUpdate.MulVec(d.Weights, state)
+		ApplyAllVec(stateUpdate, tanh)
+		// Decay the state
+		state.ScaleVec(1-d.DecayRate, state)
+		// Add the update to the state
+		state.AddScaledVec(state, d.UpdateRate, stateUpdate)
+		// Ensure the state is still in range -1 to 1
+		ApplyAllVec(state, clamp(0, 1))
+		states[i+1] = mat.VecDenseCopyOf(state)
+	}
+	return states
 }
 
 func (d *DenseRegNetwork) Mutate() {
