@@ -11,12 +11,19 @@ import (
 )
 
 func main() {
-	// Algorithm tunable params
+	// Training loop params
 	maxDuration := 8 * time.Hour
 	resetTargetEvery := 2000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 15
 	datasetPath := "./dataset-simple"
+
+	// Algorithm tunable params
+	weightMutationMax := 0.0067
+	weightMutationChance := 0.067
+	vecMutationAmount := 0.1
+	updateRate := 1.0
+	decayRate := 0.2
 	timesteps := 10
 
 	// Load the dataset
@@ -29,11 +36,11 @@ func main() {
 	fmt.Println("Loaded", len(images), "images")
 
 	// Create the two genotypes
-	bestGenotype := NewGenotype(imgVolume, 0.1)
-	testGenotype := NewGenotype(imgVolume, 0.1)
+	bestGenotype := NewGenotype(imgVolume, vecMutationAmount)
+	testGenotype := NewGenotype(imgVolume, vecMutationAmount)
 	testGenotype.CopyFrom(bestGenotype)
-	bestDenseReg := NewDenseRegNetwork(imgVolume, 1, 0.2, 0.0067)
-	testDenseReg := NewDenseRegNetwork(imgVolume, 1, 0.2, 0.0067)
+	bestDenseReg := NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
+	testDenseReg := NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
 	testDenseReg.CopyFrom(bestDenseReg)
 
 	// Create the log file
@@ -65,7 +72,7 @@ func main() {
 
 		// Mutate the test genotype and evaluate it
 		testGenotype.Mutate()
-		if rand.Float64() < 0.067 {
+		if rand.Float64() < weightMutationChance {
 			testDenseReg.Mutate()
 		}
 
