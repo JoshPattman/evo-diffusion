@@ -19,7 +19,7 @@ func main() {
 	resetTargetEvery := 2000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 45
-	datasetPath := "./dataset-simpler"
+	datasetPath := "./dataset-simple"
 
 	// Algorithm tunable params
 	weightMutationMax := 0.0067
