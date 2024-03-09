@@ -8,15 +8,6 @@ import (
 
 var _ RegNetwork = &DenseRegNetwork{}
 
-func NewDenseRegNetwork(nodes int, updateRate float64, decayRate float64, weightsMaxMult float64) *DenseRegNetwork {
-	return &DenseRegNetwork{
-		Weights:       mat.NewDense(nodes, nodes, nil),
-		UpdateRate:    updateRate,
-		DecayRate:     decayRate,
-		WeightsMaxMut: weightsMaxMult,
-	}
-}
-
 type DenseRegNetwork struct {
 	// The weights between the nodes in the network
 	Weights *mat.Dense
@@ -28,19 +19,13 @@ type DenseRegNetwork struct {
 	WeightsMaxMut float64
 }
 
-// Clone implements RegNetwork.
-func (n *DenseRegNetwork) Clone() RegNetwork {
+func NewDenseRegNetwork(nodes int, updateRate float64, decayRate float64, weightsMaxMult float64) *DenseRegNetwork {
 	return &DenseRegNetwork{
-		Weights:       mat.DenseCopyOf(n.Weights),
-		UpdateRate:    n.UpdateRate,
-		DecayRate:     n.DecayRate,
-		WeightsMaxMut: n.WeightsMaxMut,
+		Weights:       mat.NewDense(nodes, nodes, nil),
+		UpdateRate:    updateRate,
+		DecayRate:     decayRate,
+		WeightsMaxMut: weightsMaxMult,
 	}
-}
-
-// WeightsMatrix implements RegNetwork.
-func (d *DenseRegNetwork) WeightsMatrix() *mat.Dense {
-	return d.Weights
 }
 
 func (d *DenseRegNetwork) Run(genotype *mat.VecDense, timesteps int) *mat.VecDense {
@@ -80,6 +65,35 @@ func (d *DenseRegNetwork) RunWithIntermediateStates(genotype *mat.VecDense, time
 	return states
 }
 
+func (n *DenseRegNetwork) Clone() RegNetwork {
+	return &DenseRegNetwork{
+		Weights:       mat.DenseCopyOf(n.Weights),
+		UpdateRate:    n.UpdateRate,
+		DecayRate:     n.DecayRate,
+		WeightsMaxMut: n.WeightsMaxMut,
+	}
+}
+
+func (n *DenseRegNetwork) CrossoverWith(other RegNetwork) RegNetwork {
+	r, c := n.Weights.Dims()
+	weights := mat.NewDense(r, c, nil)
+	for ri := 0; ri < r; ri++ {
+		for ci := 0; ci < c; ci++ {
+			if rand.Float64() < 0.5 {
+				weights.Set(ri, ci, n.Weights.At(ri, ci))
+			} else {
+				weights.Set(ri, ci, other.(*DenseRegNetwork).Weights.At(ri, ci))
+			}
+		}
+	}
+	return &DenseRegNetwork{
+		Weights:       weights,
+		UpdateRate:    n.UpdateRate,
+		DecayRate:     n.DecayRate,
+		WeightsMaxMut: n.WeightsMaxMut,
+	}
+}
+
 func (d *DenseRegNetwork) Mutate() {
 	r, c := d.Weights.Dims()
 	ri := rand.Intn(r)
@@ -88,10 +102,6 @@ func (d *DenseRegNetwork) Mutate() {
 	d.Weights.Set(ri, ci, d.Weights.At(ri, ci)+addition)
 }
 
-func (d *DenseRegNetwork) CopyFrom(other RegNetwork) {
-	otherDense := other.(*DenseRegNetwork)
-	d.Weights.Copy(otherDense.Weights)
-	d.UpdateRate = otherDense.UpdateRate
-	d.DecayRate = otherDense.DecayRate
-	d.WeightsMaxMut = otherDense.WeightsMaxMut
+func (d *DenseRegNetwork) WeightsMatrix() *mat.Dense {
+	return d.Weights
 }

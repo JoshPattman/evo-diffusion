@@ -9,10 +9,12 @@ type RegNetwork interface {
 	Run(genotype *mat.VecDense, timesteps int) (finalState *mat.VecDense)
 	// Same as Run, but also returns all intermediate states. Allocated more usually so will be slowe
 	RunWithIntermediateStates(genotype *mat.VecDense, timesteps int) (states []*mat.VecDense)
+	// Clone (asexual reproduction)
+	Clone() RegNetwork
+	// Crossover (sexual reproduction)
+	CrossoverWith(other RegNetwork) RegNetwork
 	// Mutate the network at its default rate
 	Mutate()
-	// Copy the parameters of the other network into this one
-	CopyFrom(other RegNetwork)
+	// Generate a metrix representing the weights - only used for drawing
 	WeightsMatrix() *mat.Dense
-	Clone() RegNetwork
 }

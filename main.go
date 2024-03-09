@@ -6,35 +6,32 @@ import (
 	"image/color"
 	"image/draw"
 	"math"
-	"math/rand"
 	"os"
 	"runtime/pprof"
 	"time"
 
+	"github.com/JoshPattman/goevo"
 	"gonum.org/v1/gonum/mat"
 )
 
 func main() {
 	// Training loop params
 	maxDuration := 10 * time.Hour
-	resetTargetEvery := 2000
+	resetTargetEvery := 1000
 	logEvery := 100
-	drawEvery := resetTargetEvery * 45
+	drawEvery := 20
 	datasetPath := "./dataset-simple"
 	doProfiling := false
 
 	// Algorithm tunable params
-	useSparseRegNet := false
 	weightMutationMax := 0.0067
 	weightMutationChance := 0.067
-	vecMutationAmount := 0.1
+	vecMutationAmount := 0.15
 	updateRate := 1.0
 	decayRate := 0.2
 	timesteps := 10
-	// Sparse specific
-	moveConProb := 0.01
-	avgConnectionsPerNode := 15
-	sparseWeightMutationMax := 0.01
+	tournamentSize := 5
+	popSize := 100
 
 	if doProfiling {
 		maxDuration = 10 * time.Second
@@ -65,26 +62,23 @@ func main() {
 	defer logFile.Close()
 	fmt.Fprintf(logFile, "generation,best_eval\n")
 
-	// Create the two genotypes
-	bestGenotype := NewGenotype(imgVolume, vecMutationAmount)
-	testGenotype := NewGenotype(imgVolume, vecMutationAmount)
-	var bestRegNet, testRegNet RegNetwork
-	testGenotype.CopyFrom(bestGenotype)
-	if useSparseRegNet {
-		// As there are fewer rates, reduce the chance of mutation
-		//weightMutationChance *= float64(avgConnectionsPerNode) / float64(imgVolume)
-		bestRegNet = NewSparseRegNetwork(imgVolume, imgVolume*avgConnectionsPerNode, updateRate, decayRate, sparseWeightMutationMax, moveConProb)
-		testRegNet = NewSparseRegNetwork(imgVolume, imgVolume*avgConnectionsPerNode, updateRate, decayRate, sparseWeightMutationMax, moveConProb)
-	} else {
-		bestRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
-		testRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
+	pop := goevo.NewSimplePopulation(func() *GenoRegPair {
+		return &GenoRegPair{
+			Genotype:   NewGenotype(imgVolume, vecMutationAmount),
+			RegNetwork: NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax),
+		}
+	}, popSize)
+
+	selection := &goevo.TournamentSelection[*GenoRegPair]{
+		TournamentSize: tournamentSize,
 	}
 
-	testRegNet.CopyFrom(bestRegNet)
+	reproduction := &GRReproduction{
+		RegNetMutateChance: weightMutationChance,
+	}
 
 	startTime := time.Now()
 	var tar *mat.VecDense
-	bestEval := math.Inf(-1)
 	// Main loop
 	gen := 0
 	for {
@@ -95,29 +89,30 @@ func main() {
 			break
 		}
 
-		// Reset the target image every resetTargetEvery generations (and src vector too)
+		// Reset both the target image and the genotypes sometimes
 		if (gen-1)%resetTargetEvery == 0 {
 			tar = images[(gen/resetTargetEvery)%len(images)]
-			bestGenotype = NewGenotype(bestGenotype.Vector.Len(), bestGenotype.ValsMaxMut)
-			bestEval = Evaluate(bestGenotype, bestRegNet, tar, timesteps)
+			example := pop.Agents()[0].Genotype.Genotype
+			newGenotype := NewGenotype(example.Vector.Len(), example.ValsMaxMut)
+			agents := pop.Agents()
+			for _, a := range agents {
+				a.Genotype.Genotype = newGenotype.Clone()
+			}
 		}
 
-		// Mutate the test genotype and evaluate it
-		testGenotype.Mutate()
-		if rand.Float64() < weightMutationChance {
-			testRegNet.Mutate()
+		// Evaluate fitness of whole generation
+		agents := pop.Agents()
+		bestEval := math.Inf(-1)
+		var bestGenotype *GenoRegPair
+		for _, a := range agents {
+			a.Fitness = Evaluate(a.Genotype.Genotype, a.Genotype.RegNetwork, tar, timesteps)
+			if a.Fitness > bestEval {
+				bestEval = a.Fitness
+				bestGenotype = a.Genotype
+			}
 		}
 
-		testEval := Evaluate(testGenotype, testRegNet, tar, timesteps)
-		// If the test genotype is better than the best genotype, copy it over, otherwise reset to prev best
-		if testEval > bestEval {
-			bestGenotype.CopyFrom(testGenotype)
-			bestRegNet.CopyFrom(testRegNet)
-			bestEval = testEval
-		} else {
-			testGenotype.CopyFrom(bestGenotype)
-			testRegNet.CopyFrom(bestRegNet)
-		}
+		pop = pop.NextGeneration(selection, reproduction)
 
 		// Add to the log file every logEvery generations
 		if gen%logEvery == 0 || gen == 1 {
@@ -127,12 +122,12 @@ func main() {
 		// Draw the images every drawEvery generations
 		if gen%drawEvery == 0 || gen == 1 {
 			fmt.Printf("G %v (%v): %3f\n", gen, time.Since(startTime), bestEval)
-			res := bestRegNet.Run(bestGenotype.Vector, timesteps)
+			res := bestGenotype.RegNetwork.Run(bestGenotype.Genotype.Vector, timesteps)
 			SaveImg("imgs/tar.png", Vec2Img(tar))
 			SaveImg("imgs/res.png", Vec2Img(res))
-			SaveImg("imgs/mat.png", Mat2Img(bestRegNet.WeightsMatrix()))
-			SaveImg("imgs/vec.png", Vec2Img(bestGenotype.Vector))
-			SaveImg("imgs/int.png", GenerateIntermediateDiagram(bestRegNet, 20, timesteps, timesteps*3, imgSize))
+			SaveImg("imgs/mat.png", Mat2Img(bestGenotype.RegNetwork.WeightsMatrix()))
+			SaveImg("imgs/vec.png", Vec2Img(bestGenotype.Genotype.Vector))
+			SaveImg("imgs/int.png", GenerateIntermediateDiagram(bestGenotype.RegNetwork, 20, timesteps, timesteps*3, imgSize))
 		}
 	}
 

@@ -45,6 +45,34 @@ type SparseRegNetwork struct {
 	NumNodes           int
 }
 
+// CrossoverWith implements RegNetwork.
+func (n *SparseRegNetwork) CrossoverWith(other RegNetwork) RegNetwork {
+	newWeights := make([]*SparseWeight, len(n.Weights))
+	for wi := range n.Weights {
+		if rand.Float64() < 0.5 {
+			newWeights[wi] = &SparseWeight{
+				From:   n.Weights[wi].From,
+				To:     n.Weights[wi].To,
+				Weight: n.Weights[wi].Weight,
+			}
+		} else {
+			newWeights[wi] = &SparseWeight{
+				From:   other.(*SparseRegNetwork).Weights[wi].From,
+				To:     other.(*SparseRegNetwork).Weights[wi].To,
+				Weight: other.(*SparseRegNetwork).Weights[wi].Weight,
+			}
+		}
+	}
+	return &SparseRegNetwork{
+		Weights:            newWeights,
+		UpdateRate:         n.UpdateRate,
+		DecayRate:          n.DecayRate,
+		MutWeightAmount:    n.MutWeightAmount,
+		MoveConnectionProb: n.MoveConnectionProb,
+		NumNodes:           n.NumNodes,
+	}
+}
+
 // Clone implements RegNetwork.
 func (n *SparseRegNetwork) Clone() RegNetwork {
 	weights := make([]*SparseWeight, len(n.Weights))

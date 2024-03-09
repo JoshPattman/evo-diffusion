@@ -36,3 +36,25 @@ func (g *Genotype) CopyFrom(other *Genotype) {
 	g.Vector.CopyVec(other.Vector)
 	g.ValsMaxMut = other.ValsMaxMut
 }
+
+func (g *Genotype) Clone() *Genotype {
+	return &Genotype{
+		Vector:     mat.VecDenseCopyOf(g.Vector),
+		ValsMaxMut: g.ValsMaxMut,
+	}
+}
+
+func (g *Genotype) CrossoverWith(other *Genotype) *Genotype {
+	vals := make([]float64, g.Vector.Len())
+	for i := range vals {
+		if rand.Float64() < 0.5 {
+			vals[i] = g.Vector.AtVec(i)
+		} else {
+			vals[i] = other.Vector.AtVec(i)
+		}
+	}
+	return &Genotype{
+		Vector:     mat.NewVecDense(len(vals), vals),
+		ValsMaxMut: g.ValsMaxMut,
+	}
+}
