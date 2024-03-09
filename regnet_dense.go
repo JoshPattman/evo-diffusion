@@ -28,6 +28,16 @@ type DenseRegNetwork struct {
 	WeightsMaxMut float64
 }
 
+// Clone implements RegNetwork.
+func (n *DenseRegNetwork) Clone() RegNetwork {
+	return &DenseRegNetwork{
+		Weights:       mat.DenseCopyOf(n.Weights),
+		UpdateRate:    n.UpdateRate,
+		DecayRate:     n.DecayRate,
+		WeightsMaxMut: n.WeightsMaxMut,
+	}
+}
+
 // WeightsMatrix implements RegNetwork.
 func (d *DenseRegNetwork) WeightsMatrix() *mat.Dense {
 	return d.Weights

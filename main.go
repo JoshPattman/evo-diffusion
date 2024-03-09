@@ -24,7 +24,7 @@ func main() {
 	doProfiling := false
 
 	// Algorithm tunable params
-	useSparseRegNet := true
+	useSparseRegNet := false
 	weightMutationMax := 0.0067
 	weightMutationChance := 0.067
 	vecMutationAmount := 0.1
@@ -34,7 +34,7 @@ func main() {
 	// Sparse specific
 	moveConProb := 0.01
 	avgConnectionsPerNode := 15
-	sparseWeightMutationMax := 0.001
+	sparseWeightMutationMax := 0.01
 
 	if doProfiling {
 		maxDuration = 10 * time.Second
@@ -57,6 +57,14 @@ func main() {
 	imgVolume := imgSize * imgSize
 	fmt.Println("Loaded", len(images), "images")
 
+	// Create the log file
+	logFile, err := os.Create("./imgs/log.csv")
+	if err != nil {
+		panic(err)
+	}
+	defer logFile.Close()
+	fmt.Fprintf(logFile, "generation,best_eval\n")
+
 	// Create the two genotypes
 	bestGenotype := NewGenotype(imgVolume, vecMutationAmount)
 	testGenotype := NewGenotype(imgVolume, vecMutationAmount)
@@ -73,14 +81,6 @@ func main() {
 	}
 
 	testRegNet.CopyFrom(bestRegNet)
-
-	// Create the log file
-	logFile, err := os.Create("./imgs/log.csv")
-	if err != nil {
-		panic(err)
-	}
-	defer logFile.Close()
-	fmt.Fprintf(logFile, "generation,best_eval\n")
 
 	startTime := time.Now()
 	var tar *mat.VecDense

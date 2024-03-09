@@ -45,6 +45,26 @@ type SparseRegNetwork struct {
 	NumNodes           int
 }
 
+// Clone implements RegNetwork.
+func (n *SparseRegNetwork) Clone() RegNetwork {
+	weights := make([]*SparseWeight, len(n.Weights))
+	for wi, w := range n.Weights {
+		weights[wi] = &SparseWeight{
+			From:   w.From,
+			To:     w.To,
+			Weight: w.Weight,
+		}
+	}
+	return &SparseRegNetwork{
+		UpdateRate:         n.UpdateRate,
+		DecayRate:          n.DecayRate,
+		MutWeightAmount:    n.MutWeightAmount,
+		MoveConnectionProb: n.MoveConnectionProb,
+		NumNodes:           n.NumNodes,
+		Weights:            weights,
+	}
+}
+
 // WeightsMatrix implements RegNetwork.
 func (n *SparseRegNetwork) WeightsMatrix() *mat.Dense {
 	weights := mat.NewDense(n.NumNodes, n.NumNodes, nil)
