@@ -8,6 +8,7 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"runtime/pprof"
 	"time"
 
 	"gonum.org/v1/gonum/mat"
@@ -15,19 +16,36 @@ import (
 
 func main() {
 	// Training loop params
-	maxDuration := 8 * time.Hour
+	maxDuration := 10 * time.Hour
 	resetTargetEvery := 2000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 45
 	datasetPath := "./dataset-simple"
+	doProfiling := false
 
 	// Algorithm tunable params
+	useSparseRegNet := true
 	weightMutationMax := 0.0067
 	weightMutationChance := 0.067
 	vecMutationAmount := 0.1
 	updateRate := 1.0
 	decayRate := 0.2
 	timesteps := 10
+	// Sparse specific
+	moveConProb := 0.02
+	avgConnectionsPerNode := 10
+	sparseWeightMutationMax := 0.0017
+
+	if doProfiling {
+		pf, err := os.Create("cpu.prof")
+		if err != nil {
+			panic(err)
+		}
+		defer pf.Close()
+		pprof.StartCPUProfile(pf)
+		defer pprof.StopCPUProfile()
+		defer fmt.Println("Stopped profiling")
+	}
 
 	// Load the dataset
 	images, imgSize, err := LoadDataset(datasetPath)
@@ -41,9 +59,18 @@ func main() {
 	// Create the two genotypes
 	bestGenotype := NewGenotype(imgVolume, vecMutationAmount)
 	testGenotype := NewGenotype(imgVolume, vecMutationAmount)
+	var bestRegNet, testRegNet RegNetwork
 	testGenotype.CopyFrom(bestGenotype)
-	bestRegNet := NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
-	testRegNet := NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
+	if useSparseRegNet {
+		// As there are fewer rates, reduce the chance of mutation
+		//weightMutationChance *= float64(avgConnectionsPerNode) / float64(imgVolume)
+		bestRegNet = NewSparseRegNetwork(imgVolume, imgVolume*avgConnectionsPerNode, updateRate, decayRate, sparseWeightMutationMax, moveConProb)
+		testRegNet = NewSparseRegNetwork(imgVolume, imgVolume*avgConnectionsPerNode, updateRate, decayRate, sparseWeightMutationMax, moveConProb)
+	} else {
+		bestRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
+		testRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
+	}
+
 	testRegNet.CopyFrom(bestRegNet)
 
 	// Create the log file
@@ -63,6 +90,7 @@ func main() {
 		gen++
 		// Stop training if time exceeds 5 minutes
 		if time.Since(startTime) > maxDuration {
+			fmt.Println("Time exceeded", maxDuration, "stopping after generation", gen)
 			break
 		}
 
@@ -101,7 +129,7 @@ func main() {
 			res := bestRegNet.Run(bestGenotype.Vector, timesteps)
 			SaveImg("imgs/tar.png", Vec2Img(tar))
 			SaveImg("imgs/res.png", Vec2Img(res))
-			SaveImg("imgs/mat.png", Mat2Img(bestRegNet.Weights))
+			SaveImg("imgs/mat.png", Mat2Img(bestRegNet.WeightsMatrix()))
 			SaveImg("imgs/vec.png", Vec2Img(bestGenotype.Vector))
 			SaveImg("imgs/int.png", GenerateIntermediateDiagram(bestRegNet, 20, timesteps, timesteps*3, imgSize))
 		}
