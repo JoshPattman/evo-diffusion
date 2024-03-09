@@ -14,5 +14,5 @@ type RegNetwork interface {
 	// Copy the parameters of the other network into this one
 	CopyFrom(other RegNetwork)
 	WeightsMatrix() *mat.Dense
-	Clone() RegNetwork
+	//Clone() RegNetwork
 }

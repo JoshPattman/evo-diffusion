@@ -84,7 +84,8 @@ func (d *DenseRegNetwork) Mutate() {
 	r, c := d.Weights.Dims()
 	ri := rand.Intn(r)
 	ci := rand.Intn(c)
-	addition := d.WeightsMaxMut * (rand.Float64()*2 - 1)
+	//addition := d.WeightsMaxMut * (rand.Float64()*2 - 1)
+	addition := d.WeightsMaxMut * rand.NormFloat64()
 	d.Weights.Set(ri, ci, d.Weights.At(ri, ci)+addition)
 }
 

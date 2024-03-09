@@ -29,7 +29,9 @@ type Genotype struct {
 func (g *Genotype) Mutate() {
 	d := g.Vector.Len()
 	di := rand.Intn(d)
-	g.Vector.SetVec(di, g.Vector.AtVec(di)+g.ValsMaxMut*(rand.Float64()*2-1))
+	//addition := g.ValsMaxMut * (rand.Float64()*2 - 1)
+	addition := g.ValsMaxMut * rand.NormFloat64()
+	g.Vector.SetVec(di, g.Vector.AtVec(di)+addition)
 }
 
 func (g *Genotype) CopyFrom(other *Genotype) {

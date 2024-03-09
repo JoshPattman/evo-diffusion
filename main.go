@@ -25,6 +25,7 @@ func main() {
 
 	// Algorithm tunable params
 	useSparseRegNet := false
+	useDoubleDenseRegNet := true
 	weightMutationMax := 0.0067
 	weightMutationChance := 0.067
 	vecMutationAmount := 0.1
@@ -35,6 +36,9 @@ func main() {
 	moveConProb := 0.01
 	avgConnectionsPerNode := 15
 	sparseWeightMutationMax := 0.01
+	// Double dense specific
+	doubleDenseHidden := 25
+	doubleDenseUseRelu := false
 
 	if doProfiling {
 		maxDuration = 10 * time.Second
@@ -75,6 +79,9 @@ func main() {
 		//weightMutationChance *= float64(avgConnectionsPerNode) / float64(imgVolume)
 		bestRegNet = NewSparseRegNetwork(imgVolume, imgVolume*avgConnectionsPerNode, updateRate, decayRate, sparseWeightMutationMax, moveConProb)
 		testRegNet = NewSparseRegNetwork(imgVolume, imgVolume*avgConnectionsPerNode, updateRate, decayRate, sparseWeightMutationMax, moveConProb)
+	} else if useDoubleDenseRegNet {
+		bestRegNet = NewDoubleDenseRegNetowrk(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax, doubleDenseUseRelu)
+		testRegNet = NewDoubleDenseRegNetowrk(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax, doubleDenseUseRelu)
 	} else {
 		bestRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
 		testRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
