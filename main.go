@@ -20,7 +20,7 @@ func main() {
 	resetTargetEvery := 2000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 45
-	datasetPath := "./dataset-simple"
+	datasetPath := "./dataset-simpler"
 	doProfiling := false
 
 	// Algorithm tunable params
@@ -37,7 +37,7 @@ func main() {
 	avgConnectionsPerNode := 15
 	sparseWeightMutationMax := 0.01
 	// Double dense specific
-	doubleDenseHidden := 25
+	doubleDenseHidden := 5
 	doubleDenseUseRelu := false
 
 	if doProfiling {
