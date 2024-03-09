@@ -17,10 +17,10 @@ import (
 func main() {
 	// Training loop params
 	maxDuration := 10 * time.Hour
-	resetTargetEvery := 2000
+	resetTargetEvery := 4000
 	logEvery := 100
-	drawEvery := resetTargetEvery * 45
-	datasetPath := "./dataset-simpler"
+	drawEvery := resetTargetEvery * 3
+	datasetPath := "./dataset-mnist"
 	doProfiling := false
 
 	// Algorithm tunable params
@@ -37,7 +37,7 @@ func main() {
 	avgConnectionsPerNode := 15
 	sparseWeightMutationMax := 0.01
 	// Double dense specific
-	doubleDenseHidden := 5
+	doubleDenseHidden := 28
 	doubleDenseUseRelu := false
 
 	if doProfiling {
