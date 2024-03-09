@@ -21,7 +21,7 @@ func main() {
 	logEvery := 100
 	drawEvery := resetTargetEvery * 45
 	datasetPath := "./dataset-simple"
-	doProfiling := false
+	doProfiling := true
 
 	// Algorithm tunable params
 	useSparseRegNet := true
@@ -37,6 +37,7 @@ func main() {
 	sparseWeightMutationMax := 0.0017
 
 	if doProfiling {
+		maxDuration = 10 * time.Second
 		pf, err := os.Create("cpu.prof")
 		if err != nil {
 			panic(err)
