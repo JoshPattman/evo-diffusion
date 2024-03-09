@@ -21,7 +21,7 @@ func main() {
 	logEvery := 100
 	drawEvery := resetTargetEvery * 45
 	datasetPath := "./dataset-simple"
-	doProfiling := true
+	doProfiling := false
 
 	// Algorithm tunable params
 	useSparseRegNet := true
@@ -32,9 +32,9 @@ func main() {
 	decayRate := 0.2
 	timesteps := 10
 	// Sparse specific
-	moveConProb := 0.02
-	avgConnectionsPerNode := 10
-	sparseWeightMutationMax := 0.0017
+	moveConProb := 0.01
+	avgConnectionsPerNode := 15
+	sparseWeightMutationMax := 0.001
 
 	if doProfiling {
 		maxDuration = 10 * time.Second
