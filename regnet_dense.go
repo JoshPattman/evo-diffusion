@@ -6,14 +6,16 @@ import (
 	"gonum.org/v1/gonum/mat"
 )
 
-var _ RegNetwork = &DenseRegNetwork{}
+var _ HCRegNet = &DenseRegNetwork{}
 
-func NewDenseRegNetwork(nodes int, updateRate float64, decayRate float64, weightsMaxMult float64) *DenseRegNetwork {
+func NewDenseRegNetwork(nodes int, updateRate float64, decayRate float64, weightsMaxMult float64, numMutations int, chanceOfMutation float64) *DenseRegNetwork {
 	return &DenseRegNetwork{
-		Weights:       mat.NewDense(nodes, nodes, nil),
-		UpdateRate:    updateRate,
-		DecayRate:     decayRate,
-		WeightsMaxMut: weightsMaxMult,
+		Weights:          mat.NewDense(nodes, nodes, nil),
+		UpdateRate:       updateRate,
+		DecayRate:        decayRate,
+		WeightsMaxMut:    weightsMaxMult,
+		NumMutations:     numMutations,
+		ChanceOfMutation: chanceOfMutation,
 	}
 }
 
@@ -25,22 +27,46 @@ type DenseRegNetwork struct {
 	// The rate at which the state decays
 	DecayRate float64
 	// The maximum amount by which the weights can be mutated
-	WeightsMaxMut float64
+	WeightsMaxMut    float64
+	NumMutations     int
+	ChanceOfMutation float64
 }
 
 // Clone implements RegNetwork.
-func (n *DenseRegNetwork) Clone() RegNetwork {
+func (n *DenseRegNetwork) Clone() HillClimbable {
 	return &DenseRegNetwork{
-		Weights:       mat.DenseCopyOf(n.Weights),
-		UpdateRate:    n.UpdateRate,
-		DecayRate:     n.DecayRate,
-		WeightsMaxMut: n.WeightsMaxMut,
+		Weights:          mat.DenseCopyOf(n.Weights),
+		UpdateRate:       n.UpdateRate,
+		DecayRate:        n.DecayRate,
+		WeightsMaxMut:    n.WeightsMaxMut,
+		NumMutations:     n.NumMutations,
+		ChanceOfMutation: n.ChanceOfMutation,
 	}
 }
 
-// WeightsMatrix implements RegNetwork.
-func (d *DenseRegNetwork) WeightsMatrix() *mat.Dense {
-	return d.Weights
+// MutateFrom implements HillClimbable.
+func (n *DenseRegNetwork) MutateFrom(other HillClimbable) {
+	// Copy into this
+	n.Weights.Copy(other.(*Genotype).Vector)
+
+	// Mutate n times
+	if rand.Float64() < n.ChanceOfMutation {
+		r, c := n.Weights.Dims()
+		for i := 0; i < n.NumMutations; i++ {
+			ri, ci := rand.Intn(r), rand.Intn(c)
+			addition := n.WeightsMaxMut * (rand.Float64()*2 - 1)
+			n.Weights.Set(ri, ci, n.Weights.At(ri, ci)+addition)
+		}
+	}
+}
+
+// AverageFrom implements HillClimbable.
+func (n *DenseRegNetwork) AverageFrom(others []HillClimbable) {
+	n.Weights.Zero()
+	for _, o := range others {
+		n.Weights.Add(n.Weights, o.(*DenseRegNetwork).Weights)
+	}
+	n.Weights.Scale(1.0/float64(len(others)), n.Weights)
 }
 
 func (d *DenseRegNetwork) Run(genotype *mat.VecDense, timesteps int) *mat.VecDense {
@@ -78,21 +104,4 @@ func (d *DenseRegNetwork) RunWithIntermediateStates(genotype *mat.VecDense, time
 		states[i+1] = mat.VecDenseCopyOf(state)
 	}
 	return states
-}
-
-func (d *DenseRegNetwork) Mutate() {
-	r, c := d.Weights.Dims()
-	ri := rand.Intn(r)
-	ci := rand.Intn(c)
-	//addition := d.WeightsMaxMut * (rand.Float64()*2 - 1)
-	addition := d.WeightsMaxMut * rand.NormFloat64()
-	d.Weights.Set(ri, ci, d.Weights.At(ri, ci)+addition)
-}
-
-func (d *DenseRegNetwork) CopyFrom(other RegNetwork) {
-	otherDense := other.(*DenseRegNetwork)
-	d.Weights.Copy(otherDense.Weights)
-	d.UpdateRate = otherDense.UpdateRate
-	d.DecayRate = otherDense.DecayRate
-	d.WeightsMaxMut = otherDense.WeightsMaxMut
 }

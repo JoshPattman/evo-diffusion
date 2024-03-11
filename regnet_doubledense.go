@@ -1,13 +1,6 @@
 package main
 
-import (
-	"math/rand"
-
-	"gonum.org/v1/gonum/mat"
-)
-
-var _ RegNetwork = &DenseRegNetwork{}
-
+/*
 func NewDoubleDenseRegNetowrk(nodes, hiddenNodes int, updateRate float64, decayRate float64, weightsMaxMult float64, useHiddenRelu bool) *DoubleDenseRegNetwork {
 	return &DoubleDenseRegNetwork{
 		WeightsA:      mat.NewDense(hiddenNodes, nodes, nil),
@@ -103,3 +96,4 @@ func (d *DoubleDenseRegNetwork) CopyFrom(other RegNetwork) {
 func (d *DoubleDenseRegNetwork) WeightsMatrix() *mat.Dense {
 	return mat.NewDense(1, 1, nil)
 }
+*/

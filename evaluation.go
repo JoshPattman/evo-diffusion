@@ -5,7 +5,7 @@ import (
 )
 
 // Evaluation of 0 is best, -1 is worst
-func Evaluate(g *Genotype, r RegNetwork, target *mat.VecDense, timesteps int) float64 {
+func Evaluate(g *Genotype, r HCRegNet, target *mat.VecDense, timesteps int) float64 {
 	result := r.Run(g.Vector, timesteps)
 	mse := imgMse(result, target)
 	return -mse

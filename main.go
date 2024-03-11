@@ -5,8 +5,6 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"math"
-	"math/rand"
 	"os"
 	"runtime/pprof"
 	"time"
@@ -17,28 +15,30 @@ import (
 func main() {
 	// Training loop params
 	maxDuration := 24 * time.Hour * 3 / 2
-	resetTargetEvery := 4000
+	resetTargetEvery := 400000000
 	logEvery := 100
-	drawEvery := resetTargetEvery * 3
-	datasetPath := "./dataset-mnist"
+	drawEvery := 8000
+	datasetPath := "./dataset-simpler"
 	doProfiling := false
 
 	// Algorithm tunable params
-	useSparseRegNet := false
-	useDoubleDenseRegNet := true
+	/*useSparseRegNet := false
+	useDoubleDenseRegNet := true*/
 	weightMutationMax := 0.0067
 	weightMutationChance := 0.067
 	vecMutationAmount := 0.1
 	updateRate := 1.0
 	decayRate := 0.2
 	timesteps := 10
-	// Sparse specific
+	numMutations := 1
+	numThreads := 1
+	/*// Sparse specific
 	moveConProb := 0.01
 	avgConnectionsPerNode := 15
 	sparseWeightMutationMax := 0.01
 	// Double dense specific
 	doubleDenseHidden := 28
-	doubleDenseUseRelu := false
+	doubleDenseUseRelu := false*/
 
 	if doProfiling {
 		maxDuration = 10 * time.Second
@@ -70,28 +70,20 @@ func main() {
 	fmt.Fprintf(logFile, "generation,best_eval\n")
 
 	// Create the two genotypes
-	bestGenotype := NewGenotype(imgVolume, vecMutationAmount)
-	testGenotype := NewGenotype(imgVolume, vecMutationAmount)
-	var bestRegNet, testRegNet RegNetwork
-	testGenotype.CopyFrom(bestGenotype)
-	if useSparseRegNet {
-		// As there are fewer rates, reduce the chance of mutation
-		//weightMutationChance *= float64(avgConnectionsPerNode) / float64(imgVolume)
-		bestRegNet = NewSparseRegNetwork(imgVolume, imgVolume*avgConnectionsPerNode, updateRate, decayRate, sparseWeightMutationMax, moveConProb)
-		testRegNet = NewSparseRegNetwork(imgVolume, imgVolume*avgConnectionsPerNode, updateRate, decayRate, sparseWeightMutationMax, moveConProb)
-	} else if useDoubleDenseRegNet {
-		bestRegNet = NewDoubleDenseRegNetowrk(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax, doubleDenseUseRelu)
-		testRegNet = NewDoubleDenseRegNetowrk(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax, doubleDenseUseRelu)
-	} else {
-		bestRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
-		testRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
-	}
+	currentGenotype := NewGenotype(imgVolume, vecMutationAmount, numMutations)
+	currentRegNet := NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax, numMutations, weightMutationChance)
 
-	testRegNet.CopyFrom(bestRegNet)
+	testGenotypes := make([]*Genotype, numThreads)
+	testRegNets := make([]HCRegNet, numThreads)
+
+	for i := range testGenotypes {
+		testGenotypes[i] = currentGenotype.Clone().(*Genotype)
+		testRegNets[i] = currentRegNet.Clone().(HCRegNet)
+	}
 
 	startTime := time.Now()
 	var tar *mat.VecDense
-	bestEval := math.Inf(-1)
+	var currentEval float64
 	// Main loop
 	gen := 0
 	for {
@@ -105,52 +97,55 @@ func main() {
 		// Reset the target image every resetTargetEvery generations (and src vector too)
 		if (gen-1)%resetTargetEvery == 0 {
 			tar = images[(gen/resetTargetEvery)%len(images)]
-			bestGenotype = NewGenotype(bestGenotype.Vector.Len(), bestGenotype.ValsMaxMut)
-			bestEval = Evaluate(bestGenotype, bestRegNet, tar, timesteps)
+			currentGenotype = NewGenotype(currentGenotype.Vector.Len(), currentGenotype.ValsMaxMut, currentGenotype.NumMutations)
 		}
+
+		currentEval = Evaluate(currentGenotype, currentRegNet, tar, timesteps)
 
 		// Mutate the test genotype and evaluate it
-		testGenotype.Mutate()
-		if rand.Float64() < weightMutationChance {
-			testRegNet.Mutate()
+		betterGenotypes := make([]HillClimbable, 0, len(testGenotypes))
+		betterRegNets := make([]HillClimbable, 0, len(testRegNets))
+
+		for i := range testGenotypes {
+			testGenotypes[i].MutateFrom(currentGenotype)
+			testRegNets[i].MutateFrom(currentGenotype)
+			testEval := Evaluate(testGenotypes[i], testRegNets[i], tar, timesteps)
+			if testEval > currentEval {
+				betterGenotypes = append(betterGenotypes, testGenotypes[i])
+				betterRegNets = append(betterRegNets, testRegNets[i])
+			}
 		}
 
-		testEval := Evaluate(testGenotype, testRegNet, tar, timesteps)
-		// If the test genotype is better than the best genotype, copy it over, otherwise reset to prev best
-		if testEval > bestEval {
-			bestGenotype.CopyFrom(testGenotype)
-			bestRegNet.CopyFrom(testRegNet)
-			bestEval = testEval
-		} else {
-			testGenotype.CopyFrom(bestGenotype)
-			testRegNet.CopyFrom(bestRegNet)
+		if len(betterGenotypes) > 0 {
+			//currentGenotype.AverageFrom(betterGenotypes)
+			//currentRegNet.AverageFrom(betterRegNets)
+			currentGenotype = betterGenotypes[0].Clone().(*Genotype)
+			currentRegNet = betterRegNets[0].Clone().(*DenseRegNetwork)
 		}
 
 		// Add to the log file every logEvery generations
 		if gen%logEvery == 0 || gen == 1 {
-			fmt.Fprintf(logFile, "%d,%.3f\n", gen, bestEval)
+			fmt.Fprintf(logFile, "%d,%.3f\n", gen, currentEval)
 		}
 
 		// Draw the images every drawEvery generations
 		if gen%drawEvery == 0 || gen == 1 {
-			fmt.Printf("G %v (%v): %3f\n", gen, time.Since(startTime), bestEval)
-			res := bestRegNet.Run(bestGenotype.Vector, timesteps)
+			fmt.Printf("G %v (%v): %3f\n", gen, time.Since(startTime), currentEval)
+			res := currentRegNet.Run(currentGenotype.Vector, timesteps)
 			SaveImg("imgs/tar.png", Vec2Img(tar))
 			SaveImg("imgs/res.png", Vec2Img(res))
-			SaveImg("imgs/mat.png", Mat2Img(bestRegNet.WeightsMatrix()))
-			SaveImg("imgs/vec.png", Vec2Img(bestGenotype.Vector))
-			SaveImg("imgs/int.png", GenerateIntermediateDiagram(bestRegNet, 20, timesteps, timesteps*3, imgSize))
+			SaveImg("imgs/int.png", GenerateIntermediateDiagram(currentRegNet, 20, timesteps, timesteps*3, imgSize))
 		}
 	}
 
 	fmt.Println("Finished in", time.Since(startTime))
 }
 
-func GenerateIntermediateDiagram(r RegNetwork, rows, trainingTimesteps, timesteps, imgSize int) image.Image {
+func GenerateIntermediateDiagram(r HCRegNet, rows, trainingTimesteps, timesteps, imgSize int) image.Image {
 	imgVolume := imgSize * imgSize
 	resultss := make([][]*mat.VecDense, rows)
 	for i := range resultss {
-		resultss[i] = r.RunWithIntermediateStates(NewGenotype(imgVolume, 0).Vector, timesteps)
+		resultss[i] = r.RunWithIntermediateStates(NewGenotype(imgVolume, 0, 0).Vector, timesteps)
 	}
 
 	img := image.NewRGBA(image.Rect(0, 0, 1+(imgSize+1)*(timesteps+1), 1+(imgSize+1)*rows))
