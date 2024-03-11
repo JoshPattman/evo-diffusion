@@ -20,12 +20,12 @@ func main() {
 	resetTargetEvery := 4000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
-	datasetPath := "./dataset-mnist"
+	datasetPath := "./dataset-simple"
 	doProfiling := false
 
 	// Algorithm tunable params
 	useSparseRegNet := false
-	useDoubleDenseRegNet := true
+	useDoubleDenseRegNet := false
 	weightMutationMax := 0.0067
 	weightMutationChance := 0.067
 	vecMutationAmount := 0.1
@@ -37,7 +37,7 @@ func main() {
 	avgConnectionsPerNode := 15
 	sparseWeightMutationMax := 0.01
 	// Double dense specific
-	doubleDenseHidden := 28
+	doubleDenseHidden := 5
 	doubleDenseUseRelu := false
 
 	if doProfiling {
@@ -110,9 +110,11 @@ func main() {
 		}
 
 		// Mutate the test genotype and evaluate it
-		testGenotype.Mutate()
-		if rand.Float64() < weightMutationChance {
-			testRegNet.Mutate()
+		for i := 0; i < rand.Intn(5)+1; i++ {
+			testGenotype.Mutate()
+			if rand.Float64() < weightMutationChance {
+				testRegNet.Mutate()
+			}
 		}
 
 		testEval := Evaluate(testGenotype, testRegNet, tar, timesteps)
