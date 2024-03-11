@@ -16,7 +16,7 @@ import (
 
 func main() {
 	// Training loop params
-	maxDuration := 10 * time.Hour
+	maxDuration := 24 * time.Hour * 3 / 2
 	resetTargetEvery := 4000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
