@@ -9,7 +9,7 @@ import (
 func NewGenotype(length int, maxMut float64) *Genotype {
 	data := make([]float64, length)
 	for i := range data {
-		data[i] = rand.Float64()
+		data[i] = rand.Float64()*2 - 1
 	}
 	return &Genotype{
 		ValsMaxMut: maxMut,
@@ -29,9 +29,14 @@ type Genotype struct {
 func (g *Genotype) Mutate() {
 	d := g.Vector.Len()
 	di := rand.Intn(d)
-	//addition := g.ValsMaxMut * (rand.Float64()*2 - 1)
-	addition := g.ValsMaxMut * rand.NormFloat64()
-	g.Vector.SetVec(di, g.Vector.AtVec(di)+addition)
+	addition := g.ValsMaxMut * (rand.Float64()*2 - 1)
+	total := g.Vector.AtVec(di) + addition
+	if total > 1 {
+		total = 1
+	} else if total < -1 {
+		total = -1
+	}
+	g.Vector.SetVec(di, total)
 }
 
 func (g *Genotype) CopyFrom(other *Genotype) {

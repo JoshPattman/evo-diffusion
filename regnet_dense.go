@@ -66,7 +66,7 @@ func (d *DenseRegNetwork) Run(genotype *mat.VecDense, timesteps int) *mat.VecDen
 		// Add the update to the state
 		state.AddScaledVec(state, d.UpdateRate, stateUpdate)
 		// Ensure the state is still in range -1 to 1
-		ApplyAllVec(state, clamp(0, 1))
+		ApplyAllVec(state, clamp(-1, 1))
 	}
 	return state
 }
@@ -85,7 +85,7 @@ func (d *DenseRegNetwork) RunWithIntermediateStates(genotype *mat.VecDense, time
 		// Add the update to the state
 		state.AddScaledVec(state, d.UpdateRate, stateUpdate)
 		// Ensure the state is still in range -1 to 1
-		ApplyAllVec(state, clamp(0, 1))
+		ApplyAllVec(state, clamp(-1, 1))
 		states[i+1] = mat.VecDenseCopyOf(state)
 	}
 	return states
@@ -97,7 +97,6 @@ func (d *DenseRegNetwork) Mutate() {
 	ci := rand.Intn(c)
 	if !d.UseBitNetWeights {
 		addition := d.WeightsMaxMut * (rand.Float64()*2 - 1)
-		//addition := d.WeightsMaxMut * rand.NormFloat64()
 		d.Weights.Set(ri, ci, d.Weights.At(ri, ci)+addition)
 	} else {
 		d.Weights.Set(ri, ci, float64(rand.Intn(3)-1))

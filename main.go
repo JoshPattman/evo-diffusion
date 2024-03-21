@@ -19,7 +19,6 @@ type RegNetType uint8
 const (
 	DenseRegNet RegNetType = iota
 	DoubleDenseRegNet
-	SparseRegNet
 	BitNetRegNet
 )
 
@@ -29,7 +28,7 @@ func main() {
 	resetTargetEvery := 4000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
-	datasetPath := "./dataset-simple"
+	datasetPath := "./dataset-simpler"
 	doProfiling := false
 
 	// Algorithm tunable params
@@ -40,10 +39,6 @@ func main() {
 	updateRate := 1.0
 	decayRate := 0.2
 	timesteps := 10
-	// Sparse specific
-	moveConProb := 0.01
-	avgConnectionsPerNode := 15
-	sparseWeightMutationMax := 0.01
 	// Double dense specific
 	doubleDenseHidden := 20
 	doubleDenseUseRelu := false
@@ -83,9 +78,6 @@ func main() {
 	var bestRegNet, testRegNet RegNetwork
 	testGenotype.CopyFrom(bestGenotype)
 	switch regNetType {
-	case SparseRegNet:
-		bestRegNet = NewSparseRegNetwork(imgVolume, imgVolume*avgConnectionsPerNode, updateRate, decayRate, sparseWeightMutationMax, moveConProb)
-		testRegNet = NewSparseRegNetwork(imgVolume, imgVolume*avgConnectionsPerNode, updateRate, decayRate, sparseWeightMutationMax, moveConProb)
 	case DoubleDenseRegNet:
 		bestRegNet = NewDoubleDenseRegNetowrk(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax, doubleDenseUseRelu)
 		testRegNet = NewDoubleDenseRegNetowrk(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax, doubleDenseUseRelu)

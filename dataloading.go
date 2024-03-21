@@ -67,7 +67,7 @@ func Vec2Img(v *mat.VecDense) image.Image {
 	for i := 0; i < sqrt; i++ {
 		for j := 0; j < sqrt; j++ {
 			val := v.AtVec(i*sqrt + j)
-			val = clamp(0, 1)(val)
+			val = clamp(-1, 1)(val)/2 + 0.5
 			img.SetGray(i, j, color.Gray{Y: uint8(val * 255)})
 		}
 	}

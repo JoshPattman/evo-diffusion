@@ -44,7 +44,7 @@ func (d *DoubleDenseRegNetwork) Run(genotype *mat.VecDense, timesteps int) *mat.
 		// Add the update to the state
 		state.AddScaledVec(state, d.UpdateRate, stateUpdate)
 		// Ensure the state is still in range -1 to 1
-		ApplyAllVec(state, clamp(0, 1))
+		ApplyAllVec(state, clamp(-1, 1))
 	}
 	return state
 }
@@ -67,7 +67,7 @@ func (d *DoubleDenseRegNetwork) RunWithIntermediateStates(genotype *mat.VecDense
 		// Add the update to the state
 		state.AddScaledVec(state, d.UpdateRate, stateUpdate)
 		// Ensure the state is still in range -1 to 1
-		ApplyAllVec(state, clamp(0, 1))
+		ApplyAllVec(state, clamp(-1, 1))
 		states[i+1] = mat.VecDenseCopyOf(state)
 	}
 	return states
