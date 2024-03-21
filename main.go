@@ -14,6 +14,15 @@ import (
 	"gonum.org/v1/gonum/mat"
 )
 
+type RegNetType uint8
+
+const (
+	DenseRegNet RegNetType = iota
+	DoubleDenseRegNet
+	SparseRegNet
+	BitNetRegNet
+)
+
 func main() {
 	// Training loop params
 	maxDuration := 24 * time.Hour * 3 / 2
@@ -24,8 +33,7 @@ func main() {
 	doProfiling := false
 
 	// Algorithm tunable params
-	useSparseRegNet := false
-	useDoubleDenseRegNet := false
+	regNetType := DoubleDenseRegNet
 	weightMutationMax := 0.0067
 	weightMutationChance := 0.067
 	vecMutationAmount := 0.1
@@ -37,7 +45,7 @@ func main() {
 	avgConnectionsPerNode := 15
 	sparseWeightMutationMax := 0.01
 	// Double dense specific
-	doubleDenseHidden := 5
+	doubleDenseHidden := 20
 	doubleDenseUseRelu := false
 
 	if doProfiling {
@@ -74,17 +82,20 @@ func main() {
 	testGenotype := NewGenotype(imgVolume, vecMutationAmount)
 	var bestRegNet, testRegNet RegNetwork
 	testGenotype.CopyFrom(bestGenotype)
-	if useSparseRegNet {
-		// As there are fewer rates, reduce the chance of mutation
-		//weightMutationChance *= float64(avgConnectionsPerNode) / float64(imgVolume)
+	switch regNetType {
+	case SparseRegNet:
 		bestRegNet = NewSparseRegNetwork(imgVolume, imgVolume*avgConnectionsPerNode, updateRate, decayRate, sparseWeightMutationMax, moveConProb)
 		testRegNet = NewSparseRegNetwork(imgVolume, imgVolume*avgConnectionsPerNode, updateRate, decayRate, sparseWeightMutationMax, moveConProb)
-	} else if useDoubleDenseRegNet {
+	case DoubleDenseRegNet:
 		bestRegNet = NewDoubleDenseRegNetowrk(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax, doubleDenseUseRelu)
 		testRegNet = NewDoubleDenseRegNetowrk(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax, doubleDenseUseRelu)
-	} else {
+	case BitNetRegNet:
+		bestRegNet = NewDenseBitNetRegNetwork(imgVolume, updateRate/100, decayRate/10)
+		testRegNet = NewDenseBitNetRegNetwork(imgVolume, updateRate/100, decayRate/10)
+	case DenseRegNet:
 		bestRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
 		testRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
+
 	}
 
 	testRegNet.CopyFrom(bestRegNet)
@@ -96,7 +107,7 @@ func main() {
 	gen := 0
 	for {
 		gen++
-		// Stop training if time exceeds 5 minutes
+		// Stop training if time exceeds time limit
 		if time.Since(startTime) > maxDuration {
 			fmt.Println("Time exceeded", maxDuration, "stopping after generation", gen)
 			break

@@ -74,19 +74,17 @@ func (d *DoubleDenseRegNetwork) RunWithIntermediateStates(genotype *mat.VecDense
 }
 
 func (d *DoubleDenseRegNetwork) Mutate() {
+	addition := d.WeightsMaxMut * (rand.Float64()*2 - 1)
+	//addition := d.WeightsMaxMut * rand.NormFloat64()
 	if rand.Float64() < 0.5 {
 		r, c := d.WeightsA.Dims()
 		ri := rand.Intn(r)
 		ci := rand.Intn(c)
-		//addition := d.WeightsMaxMut * (rand.Float64()*2 - 1)
-		addition := d.WeightsMaxMut * rand.NormFloat64()
 		d.WeightsA.Set(ri, ci, d.WeightsA.At(ri, ci)+addition)
 	} else {
 		r, c := d.WeightsB.Dims()
 		ri := rand.Intn(r)
 		ci := rand.Intn(c)
-		//addition := d.WeightsMaxMut * (rand.Float64()*2 - 1)
-		addition := d.WeightsMaxMut * rand.NormFloat64()
 		d.WeightsB.Set(ri, ci, d.WeightsB.At(ri, ci)+addition)
 	}
 }
@@ -101,5 +99,8 @@ func (d *DoubleDenseRegNetwork) CopyFrom(other RegNetwork) {
 }
 
 func (d *DoubleDenseRegNetwork) WeightsMatrix() *mat.Dense {
-	return mat.NewDense(1, 1, nil)
+	// Assume we dont use relu, so we can just multiply the two matricies together
+	res := mat.NewDense(d.WeightsB.RawMatrix().Rows, d.WeightsA.RawMatrix().Cols, nil)
+	res.Product(d.WeightsB, d.WeightsA)
+	return res
 }
