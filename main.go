@@ -28,7 +28,7 @@ func main() {
 	resetTargetEvery := 4000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
-	datasetPath := "./dataset-simpler"
+	datasetPath := "dataset-simpler"
 	doProfiling := false
 
 	// Algorithm tunable params
@@ -56,13 +56,25 @@ func main() {
 	}
 
 	// Load the dataset
-	images, imgSize, err := LoadDataset(datasetPath)
+	images, imgSizeX, imgSizeY, err := LoadDataset(datasetPath)
 	if err != nil {
 		panic(err)
 	}
 	//images = images[:2]
-	imgVolume := imgSize * imgSize
-	fmt.Println("Loaded", len(images), "images")
+	imgVolume := imgSizeX * imgSizeY
+	fmt.Println("Loaded", len(images), "images of size", imgSizeX, "x", imgSizeY, "(", imgVolume, "pixels )")
+	fmt.Println("Min img val", mat.Min(images[0]), "Max img val", mat.Max(images[0]))
+
+	// First compute the hebb weights
+	hebbWeights := GenerateHebbWeights(images, 30, 0.02)
+	// Save the hebb weights
+	SaveImg("imgs/hebb.png", Mat2Img(hebbWeights, 1))
+	// Save an intermediate diagram using hebb weights
+	if imgSizeX == imgSizeY {
+		regnet := NewDenseRegNetwork(imgVolume, updateRate, decayRate, 0)
+		regnet.Weights = hebbWeights
+		SaveImg("imgs/hebb_intermediate.png", GenerateIntermediateDiagram(regnet, 20, timesteps, timesteps*3, imgSizeX))
+	}
 
 	// Create the log file
 	logFile, err := os.Create("./imgs/log.csv")
@@ -139,12 +151,21 @@ func main() {
 		// Draw the images every drawEvery generations
 		if gen%drawEvery == 0 || gen == 1 {
 			fmt.Printf("G %v (%v): %3f\n", gen, time.Since(startTime), bestEval)
+			weightMax := mat.Max(bestRegNet.WeightsMatrix())
+			weightMin := mat.Min(bestRegNet.WeightsMatrix())
+			if math.Abs(weightMin) > weightMax {
+				weightMax = math.Abs(weightMin)
+			}
+			SaveImg("imgs/mat.png", Mat2Img(bestRegNet.WeightsMatrix(), weightMax))
+
 			res := bestRegNet.Run(bestGenotype.Vector, timesteps)
-			SaveImg("imgs/tar.png", Vec2Img(tar))
-			SaveImg("imgs/res.png", Vec2Img(res))
-			SaveImg("imgs/mat.png", Mat2Img(bestRegNet.WeightsMatrix()))
-			SaveImg("imgs/vec.png", Vec2Img(bestGenotype.Vector))
-			SaveImg("imgs/int.png", GenerateIntermediateDiagram(bestRegNet, 20, timesteps, timesteps*3, imgSize))
+
+			if imgSizeX == imgSizeY {
+				SaveImg("imgs/tar.png", Vec2Img(tar, imgSizeX, imgSizeY))
+				SaveImg("imgs/res.png", Vec2Img(res, imgSizeX, imgSizeY))
+				SaveImg("imgs/vec.png", Vec2Img(bestGenotype.Vector, imgSizeX, imgSizeY))
+				SaveImg("imgs/int.png", GenerateIntermediateDiagram(bestRegNet, 20, timesteps, timesteps*3, imgSizeX))
+			}
 		}
 	}
 
@@ -163,7 +184,7 @@ func GenerateIntermediateDiagram(r RegNetwork, rows, trainingTimesteps, timestep
 	draw.Draw(img, image.Rect(imgSize*trainingTimesteps, 0, img.Bounds().Max.X, img.Bounds().Max.Y), &image.Uniform{color.RGBA{0, 0, 255, 255}}, image.Point{}, draw.Src)
 	for irow, results := range resultss {
 		for icol, res := range results {
-			draw.Draw(img, image.Rect(1+icol*(imgSize+1), 1+irow*(imgSize+1), 1+(icol+1)*(imgSize+1), 1+(irow+1)*(imgSize+1)), Vec2Img(res), image.Point{}, draw.Src)
+			draw.Draw(img, image.Rect(1+icol*(imgSize+1), 1+irow*(imgSize+1), 1+(icol+1)*(imgSize+1), 1+(irow+1)*(imgSize+1)), Vec2Img(res, imgSize, imgSize), image.Point{}, draw.Src)
 		}
 	}
 	return img
