@@ -15,7 +15,6 @@ type RegNetType uint8
 const (
 	DenseRegNet RegNetType = iota
 	DoubleDenseRegNet
-	BitNetRegNet
 )
 
 func main() {
@@ -24,7 +23,7 @@ func main() {
 	resetTargetEvery := 8000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
-	datasetPath := "dataset-simpler"
+	datasetPath := "datasets/stalks"
 	logWeights := datasetPath == "arbitary"
 
 	// Algorithm tunable params
@@ -36,7 +35,7 @@ func main() {
 	decayRate := 0.2
 	timesteps := 10
 	// Double dense specific
-	doubleDenseHidden := 20
+	doubleDenseHidden := 40
 
 	// Load the dataset
 	images, imgSizeX, imgSizeY, err := LoadDataset(datasetPath)
@@ -54,7 +53,7 @@ func main() {
 	// First compute the hebb weights
 	hebbWeights := GenerateHebbWeights(images, 30, 0.02)
 	// Save the hebb weights
-	SaveImg("imgs/hebb_weights.png", Mat2Img(hebbWeights, 1))
+	SaveImg("imgs/hebb_weights_max1.png", Mat2Img(hebbWeights, 1))
 	// Save an intermediate diagram using hebb weights
 	if imgSizeX == imgSizeY {
 		regnet := NewDenseRegNetwork(imgVolume, updateRate, decayRate, 0)
@@ -83,9 +82,6 @@ func main() {
 	case DoubleDenseRegNet:
 		bestRegNet = NewDoubleDenseRegNetwork(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax)
 		testRegNet = NewDoubleDenseRegNetwork(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax)
-	case BitNetRegNet:
-		bestRegNet = NewDenseBitNetRegNetwork(imgVolume, updateRate/100, decayRate/10)
-		testRegNet = NewDenseBitNetRegNetwork(imgVolume, updateRate/100, decayRate/10)
 	case DenseRegNet:
 		bestRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
 		testRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
@@ -106,11 +102,9 @@ func main() {
 		}
 
 		// Mutate the test genotype and evaluate it
-		for i := 0; i < rand.Intn(5)+1; i++ {
-			testGenotype.Mutate()
-			if rand.Float64() < weightMutationChance {
-				testRegNet.Mutate()
-			}
+		testGenotype.Mutate()
+		if rand.Float64() < weightMutationChance {
+			testRegNet.Mutate()
 		}
 
 		testEval := Evaluate(testGenotype, testRegNet, tar, timesteps)
@@ -152,6 +146,7 @@ func main() {
 			}
 			//fmt.Println("Weight max", weightMax, "Weight min", weightMin)
 			SaveImg("imgs/evo_weights.png", Mat2Img(bestRegNet.WeightsMatrix(), weightMax))
+			SaveImg("imgs/evo_weights_max1.png", Mat2Img(bestRegNet.WeightsMatrix(), 1))
 
 			res := bestRegNet.Run(bestGenotype.Vector, timesteps)
 

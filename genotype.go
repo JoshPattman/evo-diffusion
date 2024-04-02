@@ -31,11 +31,7 @@ func (g *Genotype) Mutate() {
 	di := rand.Intn(d)
 	addition := g.ValsMaxMut * (rand.Float64()*2 - 1)
 	total := g.Vector.AtVec(di) + addition
-	if total > 1 {
-		total = 1
-	} else if total < -1 {
-		total = -1
-	}
+	total = clamp(-1, 1)(total)
 	g.Vector.SetVec(di, total)
 }
 

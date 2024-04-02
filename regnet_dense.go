@@ -17,15 +17,6 @@ func NewDenseRegNetwork(nodes int, updateRate float64, decayRate float64, weight
 	}
 }
 
-func NewDenseBitNetRegNetwork(nodes int, updateRate float64, decayRate float64) *DenseRegNetwork {
-	return &DenseRegNetwork{
-		Weights:          mat.NewDense(nodes, nodes, nil),
-		UpdateRate:       updateRate,
-		DecayRate:        decayRate,
-		UseBitNetWeights: true,
-	}
-}
-
 type DenseRegNetwork struct {
 	// The weights between the nodes in the network
 	Weights *mat.Dense
@@ -35,18 +26,6 @@ type DenseRegNetwork struct {
 	DecayRate float64
 	// The maximum amount by which the weights can be mutated
 	WeightsMaxMut float64
-	// Should be only use the weight values -1, 0, and 1?
-	UseBitNetWeights bool
-}
-
-// Clone implements RegNetwork.
-func (n *DenseRegNetwork) Clone() RegNetwork {
-	return &DenseRegNetwork{
-		Weights:       mat.DenseCopyOf(n.Weights),
-		UpdateRate:    n.UpdateRate,
-		DecayRate:     n.DecayRate,
-		WeightsMaxMut: n.WeightsMaxMut,
-	}
 }
 
 // WeightsMatrix implements RegNetwork.
@@ -95,12 +74,9 @@ func (d *DenseRegNetwork) Mutate() {
 	r, c := d.Weights.Dims()
 	ri := rand.Intn(r)
 	ci := rand.Intn(c)
-	if !d.UseBitNetWeights {
-		addition := d.WeightsMaxMut * (rand.Float64()*2 - 1)
-		d.Weights.Set(ri, ci, d.Weights.At(ri, ci)+addition)
-	} else {
-		d.Weights.Set(ri, ci, float64(rand.Intn(3)-1))
-	}
+	addition := d.WeightsMaxMut * (rand.Float64()*2 - 1)
+	newVal := d.Weights.At(ri, ci) + addition
+	d.Weights.Set(ri, ci, newVal)
 }
 
 func (d *DenseRegNetwork) CopyFrom(other RegNetwork) {
