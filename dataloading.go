@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
+	"image/png"
 	"math/rand"
 	"os"
 	"path"
@@ -40,9 +42,20 @@ func LoadDataset(dataPath string) ([]*mat.VecDense, int, int, error) {
 				return nil, 0, 0, err
 			}
 			defer f.Close()
-			img, err := jpeg.Decode(f)
-			if err != nil {
-				return nil, 0, 0, err
+			var img image.Image
+			// if it is a .jpg
+			if path.Ext(filePath) == ".jpg" || path.Ext(filePath) == ".jpeg" {
+				img, err = jpeg.Decode(f)
+				if err != nil {
+					return nil, 0, 0, err
+				}
+			} else if path.Ext(filePath) == ".png" {
+				img, err = png.Decode(f)
+				if err != nil {
+					return nil, 0, 0, err
+				}
+			} else {
+				return nil, 0, 0, fmt.Errorf("unsupported file type")
 			}
 			if img.Bounds().Dx() != img.Bounds().Dy() {
 				panic("Image is not square")

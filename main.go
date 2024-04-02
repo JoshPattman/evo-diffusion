@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"os"
 
 	"gonum.org/v1/gonum/mat"
 )
@@ -18,16 +19,16 @@ const (
 
 func main() {
 	// Training loop params
-	maxGenerations := 1000000
-	resetTargetEvery := 4000
+	maxGenerations := 8000000
+	resetTargetEvery := 2000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
-	datasetPath := "dataset-darwin"
+	datasetPath := "dataset-stalks"
 
 	// Algorithm tunable params
 	regNetType := DoubleDenseRegNet
 	weightMutationMax := 0.0067
-	weightMutationChance := 1.0 //0.067
+	weightMutationChance := 1.0 // 0.067
 	vecMutationAmount := 0.1
 	updateRate := 1.0
 	decayRate := 0.2
@@ -43,6 +44,10 @@ func main() {
 	imgVolume := imgSizeX * imgSizeY
 	fmt.Println("Loaded", len(images), "images of size", imgSizeX, "x", imgSizeY, "(", imgVolume, "pixels )")
 	fmt.Println("Min img val", mat.Min(images[0]), "Max img val", mat.Max(images[0]))
+
+	// Clear the imgs folder
+	os.RemoveAll("imgs")
+	os.Mkdir("imgs", os.ModePerm)
 
 	// First compute the hebb weights
 	hebbWeights := GenerateHebbWeights(images, 30, 0.02)
