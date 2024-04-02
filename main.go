@@ -20,7 +20,7 @@ const (
 func main() {
 	// Training loop params
 	maxGenerations := 8000000
-	resetTargetEvery := 2000
+	resetTargetEvery := 8000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
 	datasetPath := "dataset-stalks"
@@ -28,7 +28,7 @@ func main() {
 	// Algorithm tunable params
 	regNetType := DoubleDenseRegNet
 	weightMutationMax := 0.0067
-	weightMutationChance := 1.0 // 0.067
+	weightMutationChance := 1.0 //0.067 //
 	vecMutationAmount := 0.1
 	updateRate := 1.0
 	decayRate := 0.2
