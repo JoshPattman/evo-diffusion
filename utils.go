@@ -2,6 +2,8 @@ package main
 
 import (
 	"image"
+	"image/color"
+	"image/draw"
 	"image/png"
 	"math"
 	"math/rand"
@@ -66,4 +68,22 @@ func uniformMat(rows, cols int, maxVal float64) *mat.Dense {
 		data[i] = (rand.Float64()*2 - 1) * maxVal
 	}
 	return mat.NewDense(rows, cols, data)
+}
+
+func GenerateIntermediateDiagram(r RegNetwork, rows, trainingTimesteps, timesteps, imgSize int) image.Image {
+	imgVolume := imgSize * imgSize
+	resultss := make([][]*mat.VecDense, rows)
+	for i := range resultss {
+		resultss[i] = r.RunWithIntermediateStates(NewGenotype(imgVolume, 0).Vector, timesteps)
+	}
+
+	img := image.NewRGBA(image.Rect(0, 0, 1+(imgSize+1)*(timesteps+1), 1+(imgSize+1)*rows))
+	draw.Draw(img, image.Rect(0, 0, imgSize*trainingTimesteps, img.Bounds().Max.Y), &image.Uniform{color.RGBA{0, 255, 0, 255}}, image.Point{}, draw.Src)
+	draw.Draw(img, image.Rect(imgSize*trainingTimesteps, 0, img.Bounds().Max.X, img.Bounds().Max.Y), &image.Uniform{color.RGBA{0, 0, 255, 255}}, image.Point{}, draw.Src)
+	for irow, results := range resultss {
+		for icol, res := range results {
+			draw.Draw(img, image.Rect(1+icol*(imgSize+1), 1+irow*(imgSize+1), 1+(icol+1)*(imgSize+1), 1+(irow+1)*(imgSize+1)), Vec2Img(res, imgSize, imgSize), image.Point{}, draw.Src)
+		}
+	}
+	return img
 }

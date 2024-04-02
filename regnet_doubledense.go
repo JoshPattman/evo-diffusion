@@ -8,14 +8,13 @@ import (
 
 var _ RegNetwork = &DenseRegNetwork{}
 
-func NewDoubleDenseRegNetowrk(nodes, hiddenNodes int, updateRate float64, decayRate float64, weightsMaxMult float64, useHiddenRelu bool) *DoubleDenseRegNetwork {
+func NewDoubleDenseRegNetwork(nodes, hiddenNodes int, updateRate float64, decayRate float64, weightsMaxMult float64) *DoubleDenseRegNetwork {
 	return &DoubleDenseRegNetwork{
 		WeightsA:      mat.NewDense(hiddenNodes, nodes, nil),
 		WeightsB:      mat.NewDense(nodes, hiddenNodes, nil),
 		UpdateRate:    updateRate,
 		DecayRate:     decayRate,
 		WeightsMaxMut: weightsMaxMult,
-		UseHiddenRelu: useHiddenRelu,
 	}
 }
 
@@ -25,7 +24,6 @@ type DoubleDenseRegNetwork struct {
 	UpdateRate    float64
 	DecayRate     float64
 	WeightsMaxMut float64
-	UseHiddenRelu bool
 }
 
 func (d *DoubleDenseRegNetwork) Run(genotype *mat.VecDense, timesteps int) *mat.VecDense {
@@ -34,9 +32,6 @@ func (d *DoubleDenseRegNetwork) Run(genotype *mat.VecDense, timesteps int) *mat.
 	stateUpdate := mat.NewVecDense(state.Len(), nil)
 	for i := 0; i < timesteps; i++ {
 		hiddentState.MulVec(d.WeightsA, state)
-		if d.UseHiddenRelu {
-			ApplyAllVec(hiddentState, relu)
-		}
 		stateUpdate.MulVec(d.WeightsB, hiddentState)
 		ApplyAllVec(stateUpdate, tanh)
 		// Decay the state
@@ -57,9 +52,6 @@ func (d *DoubleDenseRegNetwork) RunWithIntermediateStates(genotype *mat.VecDense
 	stateUpdate := mat.NewVecDense(state.Len(), nil)
 	for i := 0; i < timesteps; i++ {
 		hiddentState.MulVec(d.WeightsA, state)
-		if d.UseHiddenRelu {
-			ApplyAllVec(hiddentState, relu)
-		}
 		stateUpdate.MulVec(d.WeightsB, hiddentState)
 		ApplyAllVec(stateUpdate, tanh)
 		// Decay the state
