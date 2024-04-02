@@ -87,3 +87,16 @@ func GenerateIntermediateDiagram(r RegNetwork, rows, trainingTimesteps, timestep
 	}
 	return img
 }
+
+func GenerateFig12EDiagram(r RegNetwork, rows, timesteps, vecLength int) image.Image {
+	results := make([]*mat.VecDense, rows)
+	for i := range results {
+		results[i] = r.Run(NewGenotype(vecLength, 0).Vector, timesteps)
+	}
+
+	img := image.NewRGBA(image.Rect(0, 0, vecLength, rows))
+	for irow, res := range results {
+		draw.Draw(img, image.Rect(0, irow, vecLength, irow+1), Vec2Img(res, vecLength, 1), image.Point{}, draw.Src)
+	}
+	return img
+}

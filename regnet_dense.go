@@ -8,12 +8,22 @@ import (
 
 var _ RegNetwork = &DenseRegNetwork{}
 
-func NewDenseRegNetwork(nodes int, updateRate float64, decayRate float64, weightsMaxMult float64) *DenseRegNetwork {
+type PostLoopProscessing uint8
+
+const (
+	NoPostProcessing PostLoopProscessing = iota
+	ClampPostProcessing
+	TanhPostProcessing
+)
+
+func NewDenseRegNetwork(nodes int, updateRate float64, decayRate float64, weightsMaxMut float64, postLoopProscessing PostLoopProscessing, performWeightClamp bool) *DenseRegNetwork {
 	return &DenseRegNetwork{
-		Weights:       mat.NewDense(nodes, nodes, nil),
-		UpdateRate:    updateRate,
-		DecayRate:     decayRate,
-		WeightsMaxMut: weightsMaxMult,
+		Weights:             mat.NewDense(nodes, nodes, nil),
+		UpdateRate:          updateRate,
+		DecayRate:           decayRate,
+		WeightsMaxMut:       weightsMaxMut,
+		PostLoopProscessing: postLoopProscessing,
+		PerformWeightClamp:  performWeightClamp,
 	}
 }
 
@@ -26,6 +36,10 @@ type DenseRegNetwork struct {
 	DecayRate float64
 	// The maximum amount by which the weights can be mutated
 	WeightsMaxMut float64
+	// The function to apply to the state after each timestep
+	PostLoopProscessing PostLoopProscessing
+	// Should we clamp the weights to -1 to 1
+	PerformWeightClamp bool
 }
 
 // WeightsMatrix implements RegNetwork.
@@ -45,7 +59,12 @@ func (d *DenseRegNetwork) Run(genotype *mat.VecDense, timesteps int) *mat.VecDen
 		// Add the update to the state
 		state.AddScaledVec(state, d.UpdateRate, stateUpdate)
 		// Ensure the state is still in range -1 to 1
-		ApplyAllVec(state, clamp(-1, 1))
+		switch d.PostLoopProscessing {
+		case ClampPostProcessing:
+			ApplyAllVec(state, clamp(-1, 1))
+		case TanhPostProcessing:
+			ApplyAllVec(state, tanh)
+		}
 	}
 	return state
 }
@@ -64,7 +83,12 @@ func (d *DenseRegNetwork) RunWithIntermediateStates(genotype *mat.VecDense, time
 		// Add the update to the state
 		state.AddScaledVec(state, d.UpdateRate, stateUpdate)
 		// Ensure the state is still in range -1 to 1
-		ApplyAllVec(state, clamp(-1, 1))
+		switch d.PostLoopProscessing {
+		case ClampPostProcessing:
+			ApplyAllVec(state, clamp(-1, 1))
+		case TanhPostProcessing:
+			ApplyAllVec(state, tanh)
+		}
 		states[i+1] = mat.VecDenseCopyOf(state)
 	}
 	return states
@@ -76,6 +100,9 @@ func (d *DenseRegNetwork) Mutate() {
 	ci := rand.Intn(c)
 	addition := d.WeightsMaxMut * (rand.Float64()*2 - 1)
 	newVal := d.Weights.At(ri, ci) + addition
+	if d.PerformWeightClamp {
+		newVal = clamp(-1, 1)(newVal)
+	}
 	d.Weights.Set(ri, ci, newVal)
 }
 

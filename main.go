@@ -19,11 +19,11 @@ const (
 
 func main() {
 	// Training loop params
-	maxGenerations := 800000
-	resetTargetEvery := 8000
+	maxGenerations := 80000
+	resetTargetEvery := 2000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
-	datasetPath := "datasets/stalks"
+	datasetPath := "arbitary"
 	logWeights := datasetPath == "arbitary"
 
 	// Algorithm tunable params
@@ -34,6 +34,8 @@ func main() {
 	updateRate := 1.0
 	decayRate := 0.2
 	timesteps := 10
+	postLoopProcessing := NoPostProcessing
+	performWeightClamp := true
 	// Double dense specific
 	doubleDenseHidden := 40
 
@@ -56,7 +58,7 @@ func main() {
 	SaveImg("imgs/hebb_weights_max1.png", Mat2Img(hebbWeights, 1))
 	// Save an intermediate diagram using hebb weights
 	if imgSizeX == imgSizeY {
-		regnet := NewDenseRegNetwork(imgVolume, updateRate, decayRate, 0)
+		regnet := NewDenseRegNetwork(imgVolume, updateRate, decayRate, 0, postLoopProcessing, performWeightClamp)
 		regnet.Weights = hebbWeights
 		SaveImg("imgs/hebb_intermediate.png", GenerateIntermediateDiagram(regnet, 20, timesteps, timesteps*3, imgSizeX))
 	}
@@ -83,8 +85,8 @@ func main() {
 		bestRegNet = NewDoubleDenseRegNetwork(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax)
 		testRegNet = NewDoubleDenseRegNetwork(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax)
 	case DenseRegNet:
-		bestRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
-		testRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax)
+		bestRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax, postLoopProcessing, performWeightClamp)
+		testRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax, postLoopProcessing, performWeightClamp)
 	}
 
 	testRegNet.CopyFrom(bestRegNet)
@@ -156,6 +158,9 @@ func main() {
 
 			if imgSizeX == imgSizeY {
 				SaveImg("imgs/evo_intermediate.png", GenerateIntermediateDiagram(bestRegNet, 20, timesteps, timesteps*3, imgSizeX))
+			}
+			if datasetPath == "arbitary" {
+				SaveImg("imgs/evo_fig12e.png", GenerateFig12EDiagram(bestRegNet, 30, timesteps, imgVolume))
 			}
 		}
 	}
