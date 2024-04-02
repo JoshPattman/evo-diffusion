@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"strings"
 
 	"gonum.org/v1/gonum/mat"
 )
@@ -24,6 +25,7 @@ func main() {
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
 	datasetPath := "dataset-stalks"
+	logWeights := datasetPath == "arbitary"
 
 	// Algorithm tunable params
 	regNetType := DoubleDenseRegNet
@@ -62,8 +64,9 @@ func main() {
 
 	// Create the log file
 	type EvoLogRow struct {
-		Generation int
-		BestEval   float64
+		Generation  int
+		BestEval    float64
+		FlatWeights string
 	}
 	csvLogger, err := NewFileCSVLogger[EvoLogRow]("./imgs/log.csv")
 	if err != nil {
@@ -123,7 +126,20 @@ func main() {
 
 		// Add to the log file every logEvery generations
 		if gen%logEvery == 0 || gen == 1 {
-			csvLogger.Log(EvoLogRow{Generation: gen, BestEval: bestEval})
+			var flatWeights []string
+			if logWeights {
+				wm := bestRegNet.WeightsMatrix()
+				r, c := wm.Dims()
+				flatWeights = make([]string, 0, r*c)
+				for i := 0; i < r; i++ {
+					for j := 0; j < c; j++ {
+						flatWeights = append(flatWeights, fmt.Sprintf("%.4f", wm.At(i, j)))
+					}
+				}
+			} else {
+				flatWeights = []string{"0.0"}
+			}
+			csvLogger.Log(EvoLogRow{Generation: gen, BestEval: bestEval, FlatWeights: strings.Join(flatWeights, ":")})
 		}
 
 		// Draw the images every drawEvery generations
@@ -134,14 +150,16 @@ func main() {
 			if math.Abs(weightMin) > weightMax {
 				weightMax = math.Abs(weightMin)
 			}
+			//fmt.Println("Weight max", weightMax, "Weight min", weightMin)
 			SaveImg("imgs/evo_weights.png", Mat2Img(bestRegNet.WeightsMatrix(), weightMax))
 
 			res := bestRegNet.Run(bestGenotype.Vector, timesteps)
 
+			SaveImg("imgs/evo_target.png", Vec2Img(tar, imgSizeX, imgSizeY))
+			SaveImg("imgs/evo_result.png", Vec2Img(res, imgSizeX, imgSizeY))
+			SaveImg("imgs/evo_input.png", Vec2Img(bestGenotype.Vector, imgSizeX, imgSizeY))
+
 			if imgSizeX == imgSizeY {
-				SaveImg("imgs/evo_target.png", Vec2Img(tar, imgSizeX, imgSizeY))
-				SaveImg("imgs/evo_result.png", Vec2Img(res, imgSizeX, imgSizeY))
-				SaveImg("imgs/evo_input.png", Vec2Img(bestGenotype.Vector, imgSizeX, imgSizeY))
 				SaveImg("imgs/evo_intermediate.png", GenerateIntermediateDiagram(bestRegNet, 20, timesteps, timesteps*3, imgSizeX))
 			}
 		}

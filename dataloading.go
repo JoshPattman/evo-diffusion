@@ -83,7 +83,7 @@ func Vec2Img(v *mat.VecDense, imgSizeX, imgSizeY int) image.Image {
 	img := image.NewGray(image.Rect(0, 0, imgSizeX, imgSizeY))
 	for i := 0; i < imgSizeX; i++ {
 		for j := 0; j < imgSizeY; j++ {
-			val := v.AtVec(i*imgSizeX + j)
+			val := v.AtVec(i*imgSizeY + j)
 			val = clamp(-1, 1)(val)/2 + 0.5
 			img.SetGray(i, j, color.Gray{Y: uint8(val * 255)})
 		}
