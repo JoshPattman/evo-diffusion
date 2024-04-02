@@ -20,15 +20,15 @@ const (
 
 func main() {
 	// Training loop params
-	maxGenerations := 8000000
+	maxGenerations := 800000
 	resetTargetEvery := 8000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
-	datasetPath := "dataset-stalks"
+	datasetPath := "dataset-simpler"
 	logWeights := datasetPath == "arbitary"
 
 	// Algorithm tunable params
-	regNetType := DoubleDenseRegNet
+	regNetType := DenseRegNet
 	weightMutationMax := 0.0067
 	weightMutationChance := 1.0 //0.067 //
 	vecMutationAmount := 0.1
@@ -95,8 +95,8 @@ func main() {
 
 	var tar *mat.VecDense
 	bestEval := math.Inf(-1)
-	// Main loop
 
+	// Main loop
 	for gen := 1; gen <= maxGenerations; gen++ {
 		// Reset the target image every resetTargetEvery generations (and src vector too)
 		if (gen-1)%resetTargetEvery == 0 {
@@ -162,6 +162,28 @@ func main() {
 			if imgSizeX == imgSizeY {
 				SaveImg("imgs/evo_intermediate.png", GenerateIntermediateDiagram(bestRegNet, 20, timesteps, timesteps*3, imgSizeX))
 			}
+		}
+	}
+
+	type GraphDRow struct {
+		Id       int
+		Timestep int
+		Vals     string
+	}
+	dcsvLogger, err := NewFileCSVLogger[GraphDRow]("./imgs/d.csv")
+	if err != nil {
+		panic(err)
+	}
+	defer dcsvLogger.Close()
+	for id := 0; id < 4; id++ {
+		gt := NewGenotype(imgVolume, vecMutationAmount)
+		ints := bestRegNet.RunWithIntermediateStates(gt.Vector, timesteps*2)
+		for t, v := range ints {
+			vals := make([]string, v.Len())
+			for i := 0; i < v.Len(); i++ {
+				vals[i] = fmt.Sprintf("%f", v.AtVec(i))
+			}
+			dcsvLogger.Log(GraphDRow{Id: id, Timestep: t, Vals: strings.Join(vals, ":")})
 		}
 	}
 }
