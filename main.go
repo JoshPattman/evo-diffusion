@@ -23,8 +23,8 @@ func main() {
 	resetTargetEvery := 2000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
-	datasetPath := "arbitary"
-	logWeights := datasetPath == "arbitary"
+	datasetPath := "arbitary2"
+	logWeights := datasetPath == "arbitary" || datasetPath == "arbitary2"
 
 	// Algorithm tunable params
 	regNetType := DenseRegNet
@@ -159,7 +159,7 @@ func main() {
 			if imgSizeX == imgSizeY {
 				SaveImg("imgs/evo_intermediate.png", GenerateIntermediateDiagram(bestRegNet, 20, timesteps, timesteps*3, imgSizeX))
 			}
-			if datasetPath == "arbitary" {
+			if datasetPath == "arbitary" || datasetPath == "arbitary2" {
 				SaveImg("imgs/evo_fig12e.png", GenerateFig12EDiagram(bestRegNet, 30, timesteps, imgVolume))
 			}
 		}

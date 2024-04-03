@@ -17,9 +17,18 @@ func loadArbitaryDataset() ([]*mat.VecDense, int, int, error) {
 	return []*mat.VecDense{mat.NewVecDense(8, []float64{1, 1, -1, -1, -1, 1, -1, 1})}, 8, 1, nil
 }
 
+func loadArbitaryDataset2() ([]*mat.VecDense, int, int, error) {
+	return []*mat.VecDense{
+		mat.NewVecDense(8, []float64{1, 1, -1, -1, -1, 1, -1, 1}),
+		mat.NewVecDense(8, []float64{1, -1, 1, -1, 1, -1, -1, -1}),
+	}, 8, 1, nil
+}
+
 func LoadDataset(dataPath string) ([]*mat.VecDense, int, int, error) {
 	if dataPath == "arbitary" {
 		return loadArbitaryDataset()
+	} else if dataPath == "arbitary2" {
+		return loadArbitaryDataset2()
 	}
 	// Find all subfolders in the data path
 	subfolders, err := os.ReadDir(dataPath)
