@@ -8,13 +8,15 @@ import (
 
 var _ RegNetwork = &DenseRegNetwork{}
 
-func NewDoubleDenseRegNetwork(nodes, hiddenNodes int, updateRate float64, decayRate float64, weightsMaxMult float64) *DoubleDenseRegNetwork {
+func NewDoubleDenseRegNetwork(nodes, hiddenNodes int, updateRate float64, decayRate float64, weightsMaxMult float64, postLoopProscessing PostLoopProscessing, performWeightClamp bool) *DoubleDenseRegNetwork {
 	return &DoubleDenseRegNetwork{
-		WeightsA:      mat.NewDense(hiddenNodes, nodes, nil),
-		WeightsB:      mat.NewDense(nodes, hiddenNodes, nil),
-		UpdateRate:    updateRate,
-		DecayRate:     decayRate,
-		WeightsMaxMut: weightsMaxMult,
+		WeightsA:            mat.NewDense(hiddenNodes, nodes, nil),
+		WeightsB:            mat.NewDense(nodes, hiddenNodes, nil),
+		UpdateRate:          updateRate,
+		DecayRate:           decayRate,
+		WeightsMaxMut:       weightsMaxMult,
+		PostLoopProscessing: postLoopProscessing,
+		PerformWeightClamp:  performWeightClamp,
 	}
 }
 
@@ -24,6 +26,10 @@ type DoubleDenseRegNetwork struct {
 	UpdateRate    float64
 	DecayRate     float64
 	WeightsMaxMut float64
+	// The function to apply to the state after each timestep
+	PostLoopProscessing PostLoopProscessing
+	// Should we clamp the weights to -1 to 1
+	PerformWeightClamp bool
 }
 
 func (d *DoubleDenseRegNetwork) Run(genotype *mat.VecDense, timesteps int) *mat.VecDense {
@@ -38,8 +44,12 @@ func (d *DoubleDenseRegNetwork) Run(genotype *mat.VecDense, timesteps int) *mat.
 		state.ScaleVec(1-d.DecayRate, state)
 		// Add the update to the state
 		state.AddScaledVec(state, d.UpdateRate, stateUpdate)
-		// Ensure the state is still in range -1 to 1
-		ApplyAllVec(state, clamp(-1, 1))
+		switch d.PostLoopProscessing {
+		case ClampPostProcessing:
+			ApplyAllVec(state, clamp(-1, 1))
+		case TanhPostProcessing:
+			ApplyAllVec(state, tanh)
+		}
 	}
 	return state
 }
@@ -58,8 +68,12 @@ func (d *DoubleDenseRegNetwork) RunWithIntermediateStates(genotype *mat.VecDense
 		state.ScaleVec(1-d.DecayRate, state)
 		// Add the update to the state
 		state.AddScaledVec(state, d.UpdateRate, stateUpdate)
-		// Ensure the state is still in range -1 to 1
-		ApplyAllVec(state, clamp(-1, 1))
+		switch d.PostLoopProscessing {
+		case ClampPostProcessing:
+			ApplyAllVec(state, clamp(-1, 1))
+		case TanhPostProcessing:
+			ApplyAllVec(state, tanh)
+		}
 		states[i+1] = mat.VecDenseCopyOf(state)
 	}
 	return states
@@ -67,17 +81,24 @@ func (d *DoubleDenseRegNetwork) RunWithIntermediateStates(genotype *mat.VecDense
 
 func (d *DoubleDenseRegNetwork) Mutate() {
 	addition := d.WeightsMaxMut * (rand.Float64()*2 - 1)
-	//addition := d.WeightsMaxMut * rand.NormFloat64()
 	if rand.Float64() < 0.5 {
 		r, c := d.WeightsA.Dims()
 		ri := rand.Intn(r)
 		ci := rand.Intn(c)
-		d.WeightsA.Set(ri, ci, d.WeightsA.At(ri, ci)+addition)
+		newVal := d.WeightsA.At(ri, ci) + addition
+		if d.PerformWeightClamp {
+			newVal = clamp(-1, 1)(newVal)
+		}
+		d.WeightsA.Set(ri, ci, newVal)
 	} else {
 		r, c := d.WeightsB.Dims()
 		ri := rand.Intn(r)
 		ci := rand.Intn(c)
-		d.WeightsB.Set(ri, ci, d.WeightsB.At(ri, ci)+addition)
+		newVal := d.WeightsB.At(ri, ci) + addition
+		if d.PerformWeightClamp {
+			newVal = clamp(-1, 1)(newVal)
+		}
+		d.WeightsB.Set(ri, ci, newVal)
 	}
 }
 
@@ -88,6 +109,8 @@ func (d *DoubleDenseRegNetwork) CopyFrom(other RegNetwork) {
 	d.UpdateRate = otherDense.UpdateRate
 	d.DecayRate = otherDense.DecayRate
 	d.WeightsMaxMut = otherDense.WeightsMaxMut
+	d.PostLoopProscessing = otherDense.PostLoopProscessing
+	d.PerformWeightClamp = otherDense.PerformWeightClamp
 }
 
 func (d *DoubleDenseRegNetwork) WeightsMatrix() *mat.Dense {

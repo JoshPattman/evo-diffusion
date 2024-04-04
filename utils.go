@@ -78,11 +78,25 @@ func GenerateIntermediateDiagram(r RegNetwork, rows, trainingTimesteps, timestep
 	}
 
 	img := image.NewRGBA(image.Rect(0, 0, 1+(imgSize+1)*(timesteps+1), 1+(imgSize+1)*rows))
-	draw.Draw(img, image.Rect(0, 0, imgSize*trainingTimesteps, img.Bounds().Max.Y), &image.Uniform{color.RGBA{0, 255, 0, 255}}, image.Point{}, draw.Src)
-	draw.Draw(img, image.Rect(imgSize*trainingTimesteps, 0, img.Bounds().Max.X, img.Bounds().Max.Y), &image.Uniform{color.RGBA{0, 0, 255, 255}}, image.Point{}, draw.Src)
+	draw.Draw(img, image.Rect(0, 0, (1+imgSize)*trainingTimesteps, img.Bounds().Max.Y), &image.Uniform{color.RGBA{0, 255, 0, 255}}, image.Point{}, draw.Src)
+	draw.Draw(img, image.Rect((1+imgSize)*trainingTimesteps, 0, img.Bounds().Max.X, img.Bounds().Max.Y), &image.Uniform{color.RGBA{0, 0, 255, 255}}, image.Point{}, draw.Src)
 	for irow, results := range resultss {
 		for icol, res := range results {
 			draw.Draw(img, image.Rect(1+icol*(imgSize+1), 1+irow*(imgSize+1), 1+(icol+1)*(imgSize+1), 1+(irow+1)*(imgSize+1)), Vec2Img(res, imgSize, imgSize), image.Point{}, draw.Src)
+		}
+	}
+	return img
+}
+
+func GenerateBestiaryDiagram(r RegNetwork, rows, cols, timesteps, imgSize int) image.Image {
+	imgVolume := imgSize * imgSize
+
+	img := image.NewRGBA(image.Rect(0, 0, 1+(imgSize+1)*cols, 1+(imgSize+1)*rows))
+	draw.Draw(img, img.Bounds(), &image.Uniform{color.RGBA{0, 0, 255, 255}}, image.Point{}, draw.Src)
+	for i := 0; i < rows; i++ {
+		for j := 0; j < cols; j++ {
+			res := r.Run(NewGenotype(imgVolume, 0).Vector, timesteps)
+			draw.Draw(img, image.Rect(1+j*(imgSize+1), 1+i*(imgSize+1), 1+(j+1)*(imgSize+1), 1+(i+1)*(imgSize+1)), Vec2Img(res, imgSize, imgSize), image.Point{}, draw.Src)
 		}
 	}
 	return img

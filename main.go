@@ -19,11 +19,11 @@ const (
 
 func main() {
 	// Training loop params
-	maxGenerations := 80000
-	resetTargetEvery := 2000
+	maxGenerations := 1600000
+	resetTargetEvery := 8000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
-	datasetPath := "arbitary2"
+	datasetPath := "datasets/stalks"
 	logWeights := datasetPath == "arbitary" || datasetPath == "arbitary2"
 
 	// Algorithm tunable params
@@ -82,8 +82,8 @@ func main() {
 	testGenotype.CopyFrom(bestGenotype)
 	switch regNetType {
 	case DoubleDenseRegNet:
-		bestRegNet = NewDoubleDenseRegNetwork(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax)
-		testRegNet = NewDoubleDenseRegNetwork(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax)
+		bestRegNet = NewDoubleDenseRegNetwork(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax, postLoopProcessing, performWeightClamp)
+		testRegNet = NewDoubleDenseRegNetwork(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax, postLoopProcessing, performWeightClamp)
 	case DenseRegNet:
 		bestRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax, postLoopProcessing, performWeightClamp)
 		testRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax, postLoopProcessing, performWeightClamp)
@@ -158,6 +158,7 @@ func main() {
 
 			if imgSizeX == imgSizeY {
 				SaveImg("imgs/evo_intermediate.png", GenerateIntermediateDiagram(bestRegNet, 20, timesteps, timesteps*3, imgSizeX))
+				SaveImg("imgs/evo_bestiary.png", GenerateBestiaryDiagram(bestRegNet, 10, 10, timesteps, imgSizeX))
 			}
 			if datasetPath == "arbitary" || datasetPath == "arbitary2" {
 				SaveImg("imgs/evo_fig12e.png", GenerateFig12EDiagram(bestRegNet, 30, timesteps, imgVolume))
