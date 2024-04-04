@@ -80,12 +80,16 @@ func (d *DoubleDenseRegNetwork) RunWithIntermediateStates(genotype *mat.VecDense
 }
 
 func (d *DoubleDenseRegNetwork) Mutate() {
+	zeroProb := 0.001
 	addition := d.WeightsMaxMut * (rand.Float64()*2 - 1)
 	if rand.Float64() < 0.5 {
 		r, c := d.WeightsA.Dims()
 		ri := rand.Intn(r)
 		ci := rand.Intn(c)
 		newVal := d.WeightsA.At(ri, ci) + addition
+		if rand.Float64() < zeroProb {
+			newVal = 0
+		}
 		if d.PerformWeightClamp {
 			newVal = clamp(-1, 1)(newVal)
 		}
@@ -95,6 +99,9 @@ func (d *DoubleDenseRegNetwork) Mutate() {
 		ri := rand.Intn(r)
 		ci := rand.Intn(c)
 		newVal := d.WeightsB.At(ri, ci) + addition
+		if rand.Float64() < zeroProb {
+			newVal = 0
+		}
 		if d.PerformWeightClamp {
 			newVal = clamp(-1, 1)(newVal)
 		}

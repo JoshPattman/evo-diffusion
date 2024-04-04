@@ -16,3 +16,17 @@ type RegNetwork interface {
 	WeightsMatrix() *mat.Dense
 	//Clone() RegNetwork
 }
+
+type TransferFunc interface {
+	Transfer(state *mat.VecDense) (newState *mat.VecDense)
+	Mutate()
+	CopyFrom(other TransferFunc)
+	CombinedWeightsMatrix() *mat.Dense
+}
+
+type TransferRegNetwork struct {
+	TransferFunc TransferFunc
+	UpdateRate   float64
+	DecayRate    float64
+	Timesteps    int
+}

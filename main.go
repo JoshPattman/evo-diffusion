@@ -15,21 +15,23 @@ type RegNetType uint8
 const (
 	DenseRegNet RegNetType = iota
 	DoubleDenseRegNet
+	RBMDenseRegNet
+	GroupedDenseRegNet
 )
 
 func main() {
 	// Training loop params
-	maxGenerations := 1600000
-	resetTargetEvery := 8000
+	maxGenerations := 16000000
+	resetTargetEvery := 1000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
 	datasetPath := "datasets/stalks"
 	logWeights := datasetPath == "arbitary" || datasetPath == "arbitary2"
 
 	// Algorithm tunable params
-	regNetType := DenseRegNet
+	regNetType := GroupedDenseRegNet
 	weightMutationMax := 0.0067
-	weightMutationChance := 1.0 //0.067 //
+	weightMutationChance := 1.0 ////0.067 //
 	vecMutationAmount := 0.1
 	updateRate := 1.0
 	decayRate := 0.2
@@ -37,7 +39,13 @@ func main() {
 	postLoopProcessing := NoPostProcessing
 	performWeightClamp := true
 	// Double dense specific
-	doubleDenseHidden := 40
+	doubleDenseHidden := 8
+	// RBM specific
+	rbmHidden := 15
+	// Groups specific
+	groups := 10
+	groupSize := 8
+	groupMutChance := 0.1
 
 	// Load the dataset
 	images, imgSizeX, imgSizeY, err := LoadDataset(datasetPath)
@@ -87,6 +95,12 @@ func main() {
 	case DenseRegNet:
 		bestRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax, postLoopProcessing, performWeightClamp)
 		testRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax, postLoopProcessing, performWeightClamp)
+	case RBMDenseRegNet:
+		bestRegNet = NewRegNetRBM(imgVolume, rbmHidden, updateRate, decayRate, weightMutationMax, performWeightClamp)
+		testRegNet = NewRegNetRBM(imgVolume, rbmHidden, updateRate, decayRate, weightMutationMax, performWeightClamp)
+	case GroupedDenseRegNet:
+		bestRegNet = NewGroupedDenseRegNet(imgVolume, groups, groupSize, updateRate, decayRate, weightMutationMax, groupMutChance, performWeightClamp)
+		testRegNet = NewGroupedDenseRegNet(imgVolume, groups, groupSize, updateRate, decayRate, weightMutationMax, groupMutChance, performWeightClamp)
 	}
 
 	testRegNet.CopyFrom(bestRegNet)

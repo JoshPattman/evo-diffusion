@@ -106,7 +106,7 @@ func Mat2Img(m *mat.Dense, maxVal float64) image.Image {
 	for i := 0; i < r; i++ {
 		for j := 0; j < c; j++ {
 			if m.At(i, j) > maxVal || m.At(i, j) < -maxVal {
-				panic("Value out of range: " + fmt.Sprint(m.At(i, j)))
+				//panic("Value out of range: " + fmt.Sprint(m.At(i, j)))
 			}
 			v := (clamp(-maxVal, maxVal)(m.At(i, j)) + maxVal) / 2
 			img.SetGray(i, j, color.Gray{Y: uint8(v / maxVal * 255)})
