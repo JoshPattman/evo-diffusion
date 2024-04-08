@@ -70,11 +70,13 @@ func uniformMat(rows, cols int, maxVal float64) *mat.Dense {
 	return mat.NewDense(rows, cols, data)
 }
 
-func GenerateIntermediateDiagram(r RegNetwork, rows, trainingTimesteps, timesteps, imgSize int) image.Image {
+// BROKEN!
+/*
+func GenerateIntermediateDiagram(r *RegulatoryNetwork, rows, imgSize int) image.Image {
 	imgVolume := imgSize * imgSize
 	resultss := make([][]*mat.VecDense, rows)
 	for i := range resultss {
-		resultss[i] = r.RunWithIntermediateStates(NewGenotype(imgVolume, 0).Vector, timesteps)
+		resultss[i] = r.RunWithIntermediateStates(NewGenotype(imgVolume, 0).Vector)
 	}
 
 	img := image.NewRGBA(image.Rect(0, 0, 1+(imgSize+1)*(timesteps+1), 1+(imgSize+1)*rows))
@@ -87,25 +89,26 @@ func GenerateIntermediateDiagram(r RegNetwork, rows, trainingTimesteps, timestep
 	}
 	return img
 }
+*/
 
-func GenerateBestiaryDiagram(r RegNetwork, rows, cols, timesteps, imgSize int) image.Image {
+func GenerateBestiaryDiagram(r *RegulatoryNetwork, rows, cols, imgSize int) image.Image {
 	imgVolume := imgSize * imgSize
 
 	img := image.NewRGBA(image.Rect(0, 0, 1+(imgSize+1)*cols, 1+(imgSize+1)*rows))
 	draw.Draw(img, img.Bounds(), &image.Uniform{color.RGBA{0, 0, 255, 255}}, image.Point{}, draw.Src)
 	for i := 0; i < rows; i++ {
 		for j := 0; j < cols; j++ {
-			res := r.Run(NewGenotype(imgVolume, 0).Vector, timesteps)
+			res := r.Run(NewGenotype(imgVolume, 0).Vector)
 			draw.Draw(img, image.Rect(1+j*(imgSize+1), 1+i*(imgSize+1), 1+(j+1)*(imgSize+1), 1+(i+1)*(imgSize+1)), Vec2Img(res, imgSize, imgSize), image.Point{}, draw.Src)
 		}
 	}
 	return img
 }
 
-func GenerateFig12EDiagram(r RegNetwork, rows, timesteps, vecLength int) image.Image {
+func GenerateFig12EDiagram(r *RegulatoryNetwork, rows, vecLength int) image.Image {
 	results := make([]*mat.VecDense, rows)
 	for i := range results {
-		results[i] = r.Run(NewGenotype(vecLength, 0).Vector, timesteps)
+		results[i] = r.Run(NewGenotype(vecLength, 0).Vector)
 	}
 
 	img := image.NewRGBA(image.Rect(0, 0, vecLength, rows))

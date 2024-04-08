@@ -10,45 +10,58 @@ import (
 	"gonum.org/v1/gonum/mat"
 )
 
-type RegNetType uint8
+type TransferFuncType uint8
 
 const (
-	DenseRegNet RegNetType = iota
-	DoubleDenseRegNet
-	RBMDenseRegNet
-	GroupedDenseRegNet
+	Dense TransferFuncType = iota
+	DoubleDense
+	GroupedDense
+	SparseChems
+)
+
+type Dataset string
+
+const (
+	Arbitary  Dataset = "arbitary"
+	Arbitary2 Dataset = "arbitary2"
+	Stalks    Dataset = "datasets/stalks"
+	Darwin    Dataset = "datasets/darwin"
+	Simple    Dataset = "datasets/simple"
+	Simpler   Dataset = "datasets/simpler"
 )
 
 func main() {
 	// Training loop params
 	maxGenerations := 16000000
-	resetTargetEvery := 1000
+	resetTargetEvery := 8000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
-	datasetPath := "datasets/stalks"
-	logWeights := datasetPath == "arbitary" || datasetPath == "arbitary2"
+	datasetPath := Stalks
+	logWeights := datasetPath == Arbitary || datasetPath == Arbitary2
 
-	// Algorithm tunable params
-	regNetType := GroupedDenseRegNet
-	weightMutationMax := 0.0067
-	weightMutationChance := 1.0 ////0.067 //
-	vecMutationAmount := 0.1
+	// Regulator network params
 	updateRate := 1.0
 	decayRate := 0.2
 	timesteps := 10
-	postLoopProcessing := NoPostProcessing
+	transferFuncType := DoubleDense
+
+	// Dense
+	weightMutationMax := 0.0067
+	weightMutationChance := 1.0 //0.067 //
+	vecMutationAmount := 0.1
 	performWeightClamp := true
-	// Double dense specific
-	doubleDenseHidden := 8
-	// RBM specific
-	rbmHidden := 15
-	// Groups specific
-	groups := 10
-	groupSize := 8
+	// Double dense
+	doubleDenseHidden := 10
+	// Grouped Dense
+	groups := 20
+	groupSize := 4
 	groupMutChance := 0.1
+	// Sparse chems
+	numChemicals := 10
+	numChemicalsPerNode := 5
 
 	// Load the dataset
-	images, imgSizeX, imgSizeY, err := LoadDataset(datasetPath)
+	images, imgSizeX, imgSizeY, err := LoadDataset(string(datasetPath))
 	if err != nil {
 		panic(err)
 	}
@@ -57,7 +70,7 @@ func main() {
 	fmt.Println("Min img val", mat.Min(images[0]), "Max img val", mat.Max(images[0]))
 
 	// Clear the imgs folder
-	os.RemoveAll("imgs")
+	//os.RemoveAll("imgs")
 	os.Mkdir("imgs", os.ModePerm)
 
 	// First compute the hebb weights
@@ -66,9 +79,10 @@ func main() {
 	SaveImg("imgs/hebb_weights_max1.png", Mat2Img(hebbWeights, 1))
 	// Save an intermediate diagram using hebb weights
 	if imgSizeX == imgSizeY {
-		regnet := NewDenseRegNetwork(imgVolume, updateRate, decayRate, 0, postLoopProcessing, performWeightClamp)
-		regnet.Weights = hebbWeights
-		SaveImg("imgs/hebb_intermediate.png", GenerateIntermediateDiagram(regnet, 20, timesteps, timesteps*3, imgSizeX))
+		tf := NewDenseTransferFunc(imgVolume, performWeightClamp, 0)
+		tf.Weights = hebbWeights
+		regnet := NewRegulatoryNetwork(tf, updateRate, decayRate, timesteps, imgVolume)
+		SaveImg("imgs/hebb_bestiary.png", GenerateBestiaryDiagram(regnet, 10, 10, imgSizeX))
 	}
 
 	// Create the log file
@@ -86,23 +100,24 @@ func main() {
 	// Create the two genotypes
 	bestGenotype := NewGenotype(imgVolume, vecMutationAmount)
 	testGenotype := NewGenotype(imgVolume, vecMutationAmount)
-	var bestRegNet, testRegNet RegNetwork
+	var bestTf, testTf TransferFunc
 	testGenotype.CopyFrom(bestGenotype)
-	switch regNetType {
-	case DoubleDenseRegNet:
-		bestRegNet = NewDoubleDenseRegNetwork(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax, postLoopProcessing, performWeightClamp)
-		testRegNet = NewDoubleDenseRegNetwork(imgVolume, doubleDenseHidden, updateRate, decayRate, weightMutationMax, postLoopProcessing, performWeightClamp)
-	case DenseRegNet:
-		bestRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax, postLoopProcessing, performWeightClamp)
-		testRegNet = NewDenseRegNetwork(imgVolume, updateRate, decayRate, weightMutationMax, postLoopProcessing, performWeightClamp)
-	case RBMDenseRegNet:
-		bestRegNet = NewRegNetRBM(imgVolume, rbmHidden, updateRate, decayRate, weightMutationMax, performWeightClamp)
-		testRegNet = NewRegNetRBM(imgVolume, rbmHidden, updateRate, decayRate, weightMutationMax, performWeightClamp)
-	case GroupedDenseRegNet:
-		bestRegNet = NewGroupedDenseRegNet(imgVolume, groups, groupSize, updateRate, decayRate, weightMutationMax, groupMutChance, performWeightClamp)
-		testRegNet = NewGroupedDenseRegNet(imgVolume, groups, groupSize, updateRate, decayRate, weightMutationMax, groupMutChance, performWeightClamp)
+	switch transferFuncType {
+	case Dense:
+		bestTf = NewDenseTransferFunc(imgVolume, performWeightClamp, weightMutationMax)
+		testTf = NewDenseTransferFunc(imgVolume, performWeightClamp, weightMutationMax)
+	case DoubleDense:
+		bestTf = NewDoubleDenseTransferFunc(imgVolume, doubleDenseHidden, performWeightClamp, weightMutationMax)
+		testTf = NewDoubleDenseTransferFunc(imgVolume, doubleDenseHidden, performWeightClamp, weightMutationMax)
+	case GroupedDense:
+		bestTf = NewGroupedTransferFunc(imgVolume, groups, groupSize, weightMutationMax, groupMutChance, performWeightClamp)
+		testTf = NewGroupedTransferFunc(imgVolume, groups, groupSize, weightMutationMax, groupMutChance, performWeightClamp)
+	case SparseChems:
+		bestTf = NewSparseChemTransferFunc(imgVolume, numChemicals, numChemicalsPerNode, weightMutationMax)
+		testTf = NewSparseChemTransferFunc(imgVolume, numChemicals, numChemicalsPerNode, weightMutationMax)
 	}
-
+	bestRegNet := NewRegulatoryNetwork(bestTf, updateRate, decayRate, timesteps, imgVolume)
+	testRegNet := NewRegulatoryNetwork(testTf, updateRate, decayRate, timesteps, imgVolume)
 	testRegNet.CopyFrom(bestRegNet)
 
 	var tar *mat.VecDense
@@ -114,7 +129,7 @@ func main() {
 		if (gen-1)%resetTargetEvery == 0 {
 			tar = images[(gen/resetTargetEvery)%len(images)]
 			bestGenotype = NewGenotype(bestGenotype.Vector.Len(), bestGenotype.ValsMaxMut)
-			bestEval = Evaluate(bestGenotype, bestRegNet, tar, timesteps)
+			bestEval = Evaluate(bestGenotype, bestRegNet, tar)
 		}
 
 		// Mutate the test genotype and evaluate it
@@ -123,7 +138,7 @@ func main() {
 			testRegNet.Mutate()
 		}
 
-		testEval := Evaluate(testGenotype, testRegNet, tar, timesteps)
+		testEval := Evaluate(testGenotype, testRegNet, tar)
 		// If the test genotype is better than the best genotype, copy it over, otherwise reset to prev best
 		if testEval > bestEval {
 			bestGenotype.CopyFrom(testGenotype)
@@ -155,27 +170,27 @@ func main() {
 		// Draw the images every drawEvery generations
 		if gen%drawEvery == 0 || gen == 1 {
 			fmt.Printf("G %v: %3f\n", gen, bestEval)
-			weightMax := mat.Max(bestRegNet.WeightsMatrix())
-			weightMin := mat.Min(bestRegNet.WeightsMatrix())
+			wm := bestRegNet.WeightsMatrix()
+			weightMax := mat.Max(wm)
+			weightMin := mat.Min(wm)
 			if math.Abs(weightMin) > weightMax {
 				weightMax = math.Abs(weightMin)
 			}
 			//fmt.Println("Weight max", weightMax, "Weight min", weightMin)
-			SaveImg("imgs/evo_weights.png", Mat2Img(bestRegNet.WeightsMatrix(), weightMax))
-			SaveImg("imgs/evo_weights_max1.png", Mat2Img(bestRegNet.WeightsMatrix(), 1))
+			SaveImg("imgs/evo_weights.png", Mat2Img(wm, weightMax))
+			SaveImg("imgs/evo_weights_max1.png", Mat2Img(wm, 1))
 
-			res := bestRegNet.Run(bestGenotype.Vector, timesteps)
+			res := bestRegNet.Run(bestGenotype.Vector)
 
 			SaveImg("imgs/evo_target.png", Vec2Img(tar, imgSizeX, imgSizeY))
 			SaveImg("imgs/evo_result.png", Vec2Img(res, imgSizeX, imgSizeY))
 			SaveImg("imgs/evo_input.png", Vec2Img(bestGenotype.Vector, imgSizeX, imgSizeY))
 
 			if imgSizeX == imgSizeY {
-				SaveImg("imgs/evo_intermediate.png", GenerateIntermediateDiagram(bestRegNet, 20, timesteps, timesteps*3, imgSizeX))
-				SaveImg("imgs/evo_bestiary.png", GenerateBestiaryDiagram(bestRegNet, 10, 10, timesteps, imgSizeX))
+				SaveImg("imgs/evo_bestiary.png", GenerateBestiaryDiagram(bestRegNet, 10, 10, imgSizeX))
 			}
 			if datasetPath == "arbitary" || datasetPath == "arbitary2" {
-				SaveImg("imgs/evo_fig12e.png", GenerateFig12EDiagram(bestRegNet, 30, timesteps, imgVolume))
+				SaveImg("imgs/evo_fig12e.png", GenerateFig12EDiagram(bestRegNet, 30, imgVolume))
 			}
 		}
 	}
@@ -192,7 +207,7 @@ func main() {
 	defer dcsvLogger.Close()
 	for id := 0; id < 4; id++ {
 		gt := NewGenotype(imgVolume, vecMutationAmount)
-		ints := bestRegNet.RunWithIntermediateStates(gt.Vector, timesteps*2)
+		ints := bestRegNet.RunWithIntermediateStates(gt.Vector)
 		for t, v := range ints {
 			vals := make([]string, v.Len())
 			for i := 0; i < v.Len(); i++ {
