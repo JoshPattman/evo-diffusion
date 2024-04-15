@@ -32,11 +32,11 @@ const (
 
 func main() {
 	// Training loop params
-	maxGenerations := 16000000
-	resetTargetEvery := 8000
+	maxGenerations := 80000
+	resetTargetEvery := 2000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
-	datasetPath := Simpler
+	datasetPath := Arbitary2
 	logWeights := datasetPath == Arbitary || datasetPath == Arbitary2
 
 	// Load the dataset
