@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math"
-	"math/rand"
 	"os"
 	"strings"
 
@@ -17,6 +16,7 @@ const (
 	DoubleDense
 	GroupedDense
 	SparseChems
+	Sparse
 )
 
 type Dataset string
@@ -36,29 +36,8 @@ func main() {
 	resetTargetEvery := 8000
 	logEvery := 100
 	drawEvery := resetTargetEvery * 3
-	datasetPath := Stalks
+	datasetPath := Simpler
 	logWeights := datasetPath == Arbitary || datasetPath == Arbitary2
-
-	// Regulator network params
-	updateRate := 1.0
-	decayRate := 0.2
-	timesteps := 10
-	transferFuncType := DoubleDense
-
-	// Dense
-	weightMutationMax := 0.0067
-	weightMutationChance := 1.0 //0.067 //
-	vecMutationAmount := 0.1
-	performWeightClamp := true
-	// Double dense
-	doubleDenseHidden := 10
-	// Grouped Dense
-	groups := 20
-	groupSize := 4
-	groupMutChance := 0.1
-	// Sparse chems
-	numChemicals := 10
-	numChemicalsPerNode := 5
 
 	// Load the dataset
 	images, imgSizeX, imgSizeY, err := LoadDataset(string(datasetPath))
@@ -68,6 +47,24 @@ func main() {
 	imgVolume := imgSizeX * imgSizeY
 	fmt.Println("Loaded", len(images), "images of size", imgSizeX, "x", imgSizeY, "(", imgVolume, "pixels )")
 	fmt.Println("Min img val", mat.Min(images[0]), "Max img val", mat.Max(images[0]))
+
+	// Regulatory network params
+	vecMutationAmount := 0.1
+	updateRate := 1.0
+	decayRate := 0.2
+	timesteps := 10
+	transferFuncType := Dense
+
+	// Create transfer func
+	var makeTF func() TransferFunc
+	switch transferFuncType {
+	case Dense:
+		makeTF = func() TransferFunc { return NewDenseTransferFunc(imgVolume, true, 0.0067) }
+	case DoubleDense:
+		makeTF = func() TransferFunc { return NewDoubleDenseTransferFunc(imgVolume, 10, true, 0.0067) }
+	case Sparse:
+		makeTF = func() TransferFunc { return NewSparseTransferFunc(imgVolume, 10, 0.01) }
+	}
 
 	// Clear the imgs folder
 	//os.RemoveAll("imgs")
@@ -79,7 +76,7 @@ func main() {
 	SaveImg("imgs/hebb_weights_max1.png", Mat2Img(hebbWeights, 1))
 	// Save an intermediate diagram using hebb weights
 	if imgSizeX == imgSizeY {
-		tf := NewDenseTransferFunc(imgVolume, performWeightClamp, 0)
+		tf := NewDenseTransferFunc(imgVolume, true, 0)
 		tf.Weights = hebbWeights
 		regnet := NewRegulatoryNetwork(tf, updateRate, decayRate, timesteps, imgVolume)
 		SaveImg("imgs/hebb_bestiary.png", GenerateBestiaryDiagram(regnet, 10, 10, imgSizeX))
@@ -100,24 +97,10 @@ func main() {
 	// Create the two genotypes
 	bestGenotype := NewGenotype(imgVolume, vecMutationAmount)
 	testGenotype := NewGenotype(imgVolume, vecMutationAmount)
-	var bestTf, testTf TransferFunc
 	testGenotype.CopyFrom(bestGenotype)
-	switch transferFuncType {
-	case Dense:
-		bestTf = NewDenseTransferFunc(imgVolume, performWeightClamp, weightMutationMax)
-		testTf = NewDenseTransferFunc(imgVolume, performWeightClamp, weightMutationMax)
-	case DoubleDense:
-		bestTf = NewDoubleDenseTransferFunc(imgVolume, doubleDenseHidden, performWeightClamp, weightMutationMax)
-		testTf = NewDoubleDenseTransferFunc(imgVolume, doubleDenseHidden, performWeightClamp, weightMutationMax)
-	case GroupedDense:
-		bestTf = NewGroupedTransferFunc(imgVolume, groups, groupSize, weightMutationMax, groupMutChance, performWeightClamp)
-		testTf = NewGroupedTransferFunc(imgVolume, groups, groupSize, weightMutationMax, groupMutChance, performWeightClamp)
-	case SparseChems:
-		bestTf = NewSparseChemTransferFunc(imgVolume, numChemicals, numChemicalsPerNode, weightMutationMax)
-		testTf = NewSparseChemTransferFunc(imgVolume, numChemicals, numChemicalsPerNode, weightMutationMax)
-	}
-	bestRegNet := NewRegulatoryNetwork(bestTf, updateRate, decayRate, timesteps, imgVolume)
-	testRegNet := NewRegulatoryNetwork(testTf, updateRate, decayRate, timesteps, imgVolume)
+
+	bestRegNet := NewRegulatoryNetwork(makeTF(), updateRate, decayRate, timesteps, imgVolume)
+	testRegNet := NewRegulatoryNetwork(makeTF(), updateRate, decayRate, timesteps, imgVolume)
 	testRegNet.CopyFrom(bestRegNet)
 
 	var tar *mat.VecDense
@@ -134,9 +117,7 @@ func main() {
 
 		// Mutate the test genotype and evaluate it
 		testGenotype.Mutate()
-		if rand.Float64() < weightMutationChance {
-			testRegNet.Mutate()
-		}
+		testRegNet.Mutate()
 
 		testEval := Evaluate(testGenotype, testRegNet, tar)
 		// If the test genotype is better than the best genotype, copy it over, otherwise reset to prev best
