@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1713180079 "/home/joshpattman/Documents/Uni/4_2_Evo/evo-diffusion/report/report.tex" "report.pdf" "report" 1713180079
+["pdflatex"] 1713194076 "/home/joshpattman/Documents/Uni/4_2_Evo/evo-diffusion/report/report.tex" "report.pdf" "report" 1713194076
   "/etc/texmf/web2c/texmf.cnf" 1664991088 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/joshpattman/Documents/Uni/4_2_Evo/evo-diffusion/report/report.tex" 1712661666 8043 98e8bd3e614a0892a874286aa52d4462 ""
+  "/home/joshpattman/Documents/Uni/4_2_Evo/evo-diffusion/report/report.tex" 1713194075 12302 c11e26541c541c90a9b05e921074c5e2 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1000.tfm" 1136768653 3584 2d666ecf6d466d8b007246bc2f94d9da ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1200.tfm" 1136768653 3584 402da0b29eafbad07963b1224b222f18 ""
@@ -77,13 +77,14 @@
   "img/fig2c.png" 1712138005 13983 e4e5e5c4f65fe2cf27ad987431a22e65 ""
   "img/fig2d.png" 1712137965 70848 e6f1c069b369e09d11d8c3251cadbf7e ""
   "img/fig2e.png" 1713180077 14516 f41a7a212bfa8d7075ee1d239e0696fc ""
+  "img/fig4b.png" 1712232991 4175 1438d01fee0d26d306f443d6c81dd0f7 ""
   "orig_img/fig2a.png" 1712660991 132088 9e1caca869f49cb9dd37e3eb5807bfc7 ""
   "orig_img/fig2b.png" 1712661008 47844 4caa6aa564c48af038aab1e556e51b59 ""
   "orig_img/fig2c.png" 1712661018 47555 928cdd40ffa2467a55dba4277d82df17 ""
   "orig_img/fig2d.png" 1712661028 108408 a16b8fa2afc9b4feca3e0b44faadb936 ""
   "orig_img/fig2e.png" 1712661037 74641 d4edc6e867a9b74a84d31ecfe4d460ee ""
-  "report.aux" 1713180079 1841 0190441891916f3a094356a4ee30890a "pdflatex"
-  "report.tex" 1712661666 8043 98e8bd3e614a0892a874286aa52d4462 ""
+  "report.aux" 1713194076 2122 14969a0a727ed69f1e250f39bfa3fc50 "pdflatex"
+  "report.tex" 1713194075 12302 c11e26541c541c90a9b05e921074c5e2 ""
   (generated)
   "report.aux"
   "report.log"
