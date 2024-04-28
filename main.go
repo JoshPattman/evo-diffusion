@@ -32,11 +32,7 @@ const (
 
 func main() {
 	// Training loop params
-	maxGenerations := 80000
-	resetTargetEvery := 2000
-	logEvery := 100
-	drawEvery := resetTargetEvery * 3
-	datasetPath := Arbitary2
+	datasetPath := Stalks
 	logWeights := datasetPath == Arbitary || datasetPath == Arbitary2
 
 	// Load the dataset
@@ -48,12 +44,17 @@ func main() {
 	fmt.Println("Loaded", len(images), "images of size", imgSizeX, "x", imgSizeY, "(", imgVolume, "pixels )")
 	fmt.Println("Min img val", mat.Min(images[0]), "Max img val", mat.Max(images[0]))
 
+	resetTargetEvery := 1000 * imgVolume / 4
+	logEvery := 100
+	drawEvery := resetTargetEvery //* 3
+	maxGenerations := resetTargetEvery * 50
+
 	// Regulatory network params
 	vecMutationAmount := 0.1
 	updateRate := 1.0
 	decayRate := 0.2
 	timesteps := 10
-	transferFuncType := Dense
+	transferFuncType := Sparse
 
 	// Create transfer func
 	var makeTF func() TransferFunc
@@ -107,9 +108,9 @@ func main() {
 	bestEval := math.Inf(-1)
 
 	// Main loop
-	for gen := 1; gen <= maxGenerations; gen++ {
+	for gen, pulse := range GenerationalLoadingBar(maxGenerations, resetTargetEvery, 15, &bestEval) {
 		// Reset the target image every resetTargetEvery generations (and src vector too)
-		if (gen-1)%resetTargetEvery == 0 {
+		if pulse {
 			tar = images[(gen/resetTargetEvery)%len(images)]
 			bestGenotype = NewGenotype(bestGenotype.Vector.Len(), bestGenotype.ValsMaxMut)
 			bestEval = Evaluate(bestGenotype, bestRegNet, tar)
@@ -150,7 +151,6 @@ func main() {
 
 		// Draw the images every drawEvery generations
 		if gen%drawEvery == 0 || gen == 1 {
-			fmt.Printf("G %v: %3f\n", gen, bestEval)
 			wm := bestRegNet.WeightsMatrix()
 			weightMax := mat.Max(wm)
 			weightMin := mat.Min(wm)

@@ -22,7 +22,7 @@ func NewSparseTransferFunc(genotypeSize, numSparseConnections int, mutStd float6
 	conns := make([][]SparseConnection, genotypeSize)
 	for i := range conns {
 		conns[i] = make([]SparseConnection, numSparseConnections)
-		for j := 0; j < numSparseConnections; j++ {
+		for j := range conns[i] {
 			conns[i][j].From = rand.Intn(genotypeSize)
 			conns[i][j].Weight = rand.NormFloat64() * mutStd
 		}
@@ -35,7 +35,7 @@ func NewSparseTransferFunc(genotypeSize, numSparseConnections int, mutStd float6
 
 func (t *SparseTransferFunc) Mutate() {
 	conns := t.Connections[rand.Intn(len(t.Connections))]
-	conn := conns[rand.Intn(len(conns))]
+	conn := &conns[rand.Intn(len(conns))]
 	conn.Weight += t.MutStd * rand.NormFloat64()
 }
 
