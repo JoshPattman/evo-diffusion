@@ -17,6 +17,7 @@ const (
 	GroupedDense
 	SparseChems
 	Sparse
+	BitDense
 )
 
 type Dataset string
@@ -54,7 +55,7 @@ func main() {
 	updateRate := 1.0
 	decayRate := 0.2
 	timesteps := 10
-	transferFuncType := Sparse
+	transferFuncType := BitDense
 
 	// Create transfer func
 	var makeTF func() TransferFunc
@@ -65,6 +66,8 @@ func main() {
 		makeTF = func() TransferFunc { return NewDoubleDenseTransferFunc(imgVolume, 10, true, 0.0067) }
 	case Sparse:
 		makeTF = func() TransferFunc { return NewSparseTransferFunc(imgVolume, 10, 0.01) }
+	case BitDense:
+		makeTF = func() TransferFunc { return NewBitDenseTransferFunc(imgVolume, 10, true, 0.0067, 0.005) }
 	}
 
 	// Clear the imgs folder
