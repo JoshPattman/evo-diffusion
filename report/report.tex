@@ -146,6 +146,14 @@
         \item 1.5 page
     \end{itemize}
 
+    Compare bestiary of dense to bitdense
+
+    Compare different number of proteins
+
+    Compare number of parameters
+
+    Compare training speed
+
 
     \section{Conclusion}
     This study has not only shown the reproducibility of the results obtained by R. Watson et al \cite{rich}, but has also contributed some valuable insights into improvements which can be made upon the model of a GRN.
@@ -157,6 +165,9 @@
         \item The extension model was also shown to be faster training and more robust than the fully dense network.
         \item A major critique of this method is that the weights of -1, 0, and 1 are straying quite far from real-life biology, where each gene may release a concentration of a certain protein.
         \item However, the aim of these experiemnts was never to make a perfect biological model, but instead a rough approximation which could be used to explore the effects of genetic memory in a GRN.
+        \item Bitdense is also very sensitive to learnging rate, bit probability, and generations before switch, making it harder to tune and get right
+        \item Running some sort of meta hill climber than runs multiple bit dense sims at once, each with own learning rate, and has competition between different sims may be future work, allowing the optimal params to be found.
+        \item It is also very possible to come up with better but less biologically training algorithms, which may be interesting to explore in the future (some sort of GAN-inspired architechture / competitive coevolution)
     \end{itemize}
 
 
