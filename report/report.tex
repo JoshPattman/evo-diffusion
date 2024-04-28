@@ -84,7 +84,7 @@
     \end{figure}
 
     Figure \ref{fig:2e} shows a selection of phenotypes produced by the GRN when given a random genotype as input. The results are very similar to those of the original paper, with the GRN producing both targets that are present in the training data. The GRN also produces the inverses of the two targets, which is to be expected.
-    
+
     \begin{figure}[h]
         \centering
         \includegraphics[width=0.45\linewidth]{img/fig2e.png}
@@ -113,11 +113,13 @@
     \end{enumerate}
 
     \subsection{Model}
-    To represent this new model of a GRN, the interaction matrix must be replaced by two distinct matricies, one for encoding a state of the GRN into a vector representing the protein production, $B_e$, and one for decoding a protien production vector into the updates to each state, $B_d$. Given a number of available proteins $n_{protein}$ and the genotype size $n_{genotype}$, $B_e$ has dimensions $(n_{protein},n_{genotype})$, and $B_d$ has dimensions $(n_{genotype},n_{protein})$. Given these matricies the phenotype at the next timestep, column vector $P(t+1)$, is given by the equation
+    To represent this new model of a GRN, the singe interaction matrix $B$ must be replaced by two distinct matricies, one for encoding a state of the GRN into a vector representing the protein production, $B_e$, and one for decoding a protien production vector into the updates to each state, $B_d$. Given a number of available proteins $n_{protein}$ and the genotype size $n_{genotype}$, $B_e$ has dimensions $(n_{protein},n_{genotype})$, and $B_d$ has dimensions $(n_{genotype},n_{protein})$. Given these matricies the phenotype at the next timestep, column vector $P(t+1)$, is given by the equation
     \begin{equation}
         P(t+1) = P(t) + \tau_1 \sigma (B_d (B_e P(t))) - \tau_2 P(t)
     \end{equation}
     Where $\tau_1$ and $\tau_2$ are the update rate and decay rate of the network respectively, and $\sigma$ is the sigmoid function.
+
+    Mutations also work in a different way in this model. Instead of directly mutating the values of $B$, the values of $B_e$ and $B_d$ are mutated. Mutations are performed on $B_d$ in the same way as they are applied to $B$ in the original model, however, mutations on $B_e$ can only mutate a single value of the matrix to $1$, $0$, or $-1$.
 
     This method has some useful properties aside from furfilling the aim to simulate the intermediate properties:
     \begin{enumerate}

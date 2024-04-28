@@ -50,12 +50,14 @@ func main() {
 	drawEvery := resetTargetEvery //* 3
 	maxGenerations := resetTargetEvery * 50
 
+	fmt.Printf("Target will be reset every %d generations, with max generations of %d\n", resetTargetEvery, maxGenerations)
+
 	// Regulatory network params
 	vecMutationAmount := 0.1
 	updateRate := 1.0
 	decayRate := 0.2
 	timesteps := 10
-	transferFuncType := BitDense
+	transferFuncType := Dense
 
 	// Create transfer func
 	var makeTF func() TransferFunc
