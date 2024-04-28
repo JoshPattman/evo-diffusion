@@ -48,7 +48,7 @@ func main() {
 	resetTargetEvery := 1000 * imgVolume / 4
 	logEvery := 100
 	drawEvery := resetTargetEvery //* 3
-	maxGenerations := resetTargetEvery * 50
+	maxGenerations := resetTargetEvery * 100
 
 	fmt.Printf("Target will be reset every %d generations, with max generations of %d\n", resetTargetEvery, maxGenerations)
 
@@ -57,7 +57,7 @@ func main() {
 	updateRate := 1.0
 	decayRate := 0.2
 	timesteps := 10
-	transferFuncType := Dense
+	transferFuncType := BitDense
 
 	// Create transfer func
 	var makeTF func() TransferFunc
@@ -69,7 +69,7 @@ func main() {
 	case Sparse:
 		makeTF = func() TransferFunc { return NewSparseTransferFunc(imgVolume, 10, 0.01) }
 	case BitDense:
-		makeTF = func() TransferFunc { return NewBitDenseTransferFunc(imgVolume, 10, true, 0.0067, 0.005) }
+		makeTF = func() TransferFunc { return NewBitDenseTransferFunc(imgVolume, 20, true, 0.0067, 0.005) }
 	}
 
 	// Clear the imgs folder

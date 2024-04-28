@@ -119,7 +119,9 @@
     \end{equation}
     Where $\tau_1$ and $\tau_2$ are the update rate and decay rate of the network respectively, and $\sigma$ is the sigmoid function.
 
-    Mutations also work in a different way in this model. Instead of directly mutating the values of $B$, the values of $B_e$ and $B_d$ are mutated. Mutations are performed on $B_d$ in the same way as they are applied to $B$ in the original model, however, mutations on $B_e$ can only mutate a single value of the matrix to $1$, $0$, or $-1$.
+    Mutations also work in a different way in this model. Instead of directly mutating the values of $B$, the values of $B_e$ and $B_d$ are mutated. Mutations are performed on $B_d$ in the same way as they are applied to $B$ in the original model, however, mutations on $B_e$ can only mutate values of the matrix to $1$, $0$, or $-1$.
+    
+    The reason behind this is primarily to allow the evolutionary process to easily invert and enable or disable the effects of one gene on another. The prescision of mutating a floating point value is not needed here because finer control can be performed by the second matrix, $B_d$. Combining these two effects together allows the evolutionary process to make both more drastic and also more subtle changes to the GRN, which hypothetically may allow it to more easily recover from local optima. This simplification of $B_e$ also significantly reduces the parameter space of the model, which should benefit rate of learning. However, due to the fact that changes to $B_e$ have a much greater effect on the output than changes to $B_d$, the chance of mutation on $B_e$ must be much lower than that of $B_d$. In these tests, the chance that $B_e$ was mutated instead of $B_d$ was $0.005$.
 
     This method has some useful properties aside from furfilling the aim to simulate the intermediate properties:
     \begin{enumerate}
@@ -132,7 +134,7 @@
         \begin{equation}
             B = B_dB_e
         \end{equation}
-        Computing the single interaction matrix enables easy comparison to both the original approach, and the weights derived from Hebbs rule, which is useful when evaluating if this model maintains the tendancy to move towards the Hebbian weights.
+        Computing the single interaction matrix enables simple comparison to both the original approach, and the weights derived from Hebbs rule, which is useful when evaluating if this model maintains the tendancy to move towards the Hebbian weights.
     \end{enumerate}
     \begin{itemize}
         \item TODO: Support the value of asking that question (using literature)
@@ -146,11 +148,15 @@
 
 
     \section{Conclusion}
+    This study has not only shown the reproducibility of the results obtained by R. Watson et al \cite{rich}, but has also contributed some valuable insights into improvements which can be made upon the model of a GRN.
+
     \begin{itemize}
-        \item one page
-        \item What do you conclude from that
-        \item significance of the extension results
-        \item critique/evaluation
+        \item This paper has presented results which agree with the original conclusion that the hill climber tends towards the hebbian weights.
+        \item However, upon implementation of the extension, it was shown that similar results could be obtained even with significanty different weights to the hebbian ones.
+        \item This may suggest that the hill climbing algorithm is not as similar to hebbian learning as previously thought, or that the extension model is not as effective as the original model.
+        \item The extension model was also shown to be faster training and more robust than the fully dense network.
+        \item A major critique of this method is that the weights of -1, 0, and 1 are straying quite far from real-life biology, where each gene may release a concentration of a certain protein.
+        \item However, the aim of these experiemnts was never to make a perfect biological model, but instead a rough approximation which could be used to explore the effects of genetic memory in a GRN.
     \end{itemize}
 
 
