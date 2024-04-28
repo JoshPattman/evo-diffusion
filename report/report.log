@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.9.20)  15 APR 2024 16:14
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.1.15)  28 APR 2024 13:57
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/home/joshpattman/Documents/Uni/4_2_Evo/evo-diffusion/report/report.tex
-(/home/joshpattman/Documents/Uni/4_2_Evo/evo-diffusion/report/report.tex
+**/home/joshpattman/Documents/evo-diffusion/report/report.tex
+(/home/joshpattman/Documents/evo-diffusion/report/report.tex
 LaTeX2e <2021-11-15> patch level 1
 L3 programming layer <2022-01-21> (/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2021/10/04 v1.4n Standard LaTeX document class
@@ -213,46 +213,46 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
 
 ]
-<img/fig2a.png, id=15, 410.4936pt x 298.4751pt>
-File: img/fig2a.png Graphic file (type png)
-<use img/fig2a.png>
-Package pdftex.def Info: img/fig2a.png  used on input line 48.
-(pdftex.def)             Requested size: 113.68623pt x 82.66158pt.
-<orig_img/fig2a.png, id=17, 731.73375pt x 565.11125pt>
+<orig_img/fig2a.png, id=15, 731.73375pt x 565.11125pt>
 File: orig_img/fig2a.png Graphic file (type png)
 <use orig_img/fig2a.png>
-Package pdftex.def Info: orig_img/fig2a.png  used on input line 49.
+Package pdftex.def Info: orig_img/fig2a.png  used on input line 56.
 (pdftex.def)             Requested size: 113.68623pt x 87.79828pt.
-<img/fig2b.png, id=18, 363.5181pt x 298.4751pt>
-File: img/fig2b.png Graphic file (type png)
-<use img/fig2b.png>
-Package pdftex.def Info: img/fig2b.png  used on input line 55.
-(pdftex.def)             Requested size: 113.68623pt x 93.34155pt.
-<orig_img/fig2b.png, id=19, 703.62875pt x 555.07375pt>
+<img/fig2a.png, id=17, 410.4936pt x 298.4751pt>
+File: img/fig2a.png Graphic file (type png)
+<use img/fig2a.png>
+Package pdftex.def Info: img/fig2a.png  used on input line 57.
+(pdftex.def)             Requested size: 113.68623pt x 82.66158pt.
+<orig_img/fig2b.png, id=18, 703.62875pt x 555.07375pt>
 File: orig_img/fig2b.png Graphic file (type png)
 <use orig_img/fig2b.png>
-Package pdftex.def Info: orig_img/fig2b.png  used on input line 56.
+Package pdftex.def Info: orig_img/fig2b.png  used on input line 65.
 (pdftex.def)             Requested size: 113.68623pt x 89.67752pt.
-<img/fig2c.png, id=20, 363.5181pt x 302.0886pt>
-File: img/fig2c.png Graphic file (type png)
-<use img/fig2c.png>
-Package pdftex.def Info: img/fig2c.png  used on input line 62.
-(pdftex.def)             Requested size: 113.68623pt x 94.47159pt.
-<orig_img/fig2c.png, id=21, 713.66624pt x 556.0775pt>
+<img/fig2b.png, id=19, 363.5181pt x 298.4751pt>
+File: img/fig2b.png Graphic file (type png)
+<use img/fig2b.png>
+Package pdftex.def Info: img/fig2b.png  used on input line 66.
+(pdftex.def)             Requested size: 113.68623pt x 93.34155pt.
+<orig_img/fig2c.png, id=20, 713.66624pt x 556.0775pt>
 File: orig_img/fig2c.png Graphic file (type png)
 <use orig_img/fig2c.png>
-Package pdftex.def Info: orig_img/fig2c.png  used on input line 63.
+Package pdftex.def Info: orig_img/fig2c.png  used on input line 72.
 (pdftex.def)             Requested size: 113.68623pt x 88.57541pt.
-<img/fig2d.png, id=22, 596.9502pt x 309.3156pt>
-File: img/fig2d.png Graphic file (type png)
-<use img/fig2d.png>
-Package pdftex.def Info: img/fig2d.png  used on input line 69.
-(pdftex.def)             Requested size: 213.16214pt x 110.45204pt.
-<orig_img/fig2d.png, id=23, 944.52875pt x 627.34375pt>
+<img/fig2c.png, id=21, 363.5181pt x 302.0886pt>
+File: img/fig2c.png Graphic file (type png)
+<use img/fig2c.png>
+Package pdftex.def Info: img/fig2c.png  used on input line 73.
+(pdftex.def)             Requested size: 113.68623pt x 94.47159pt.
+<orig_img/fig2d.png, id=22, 944.52875pt x 627.34375pt>
 File: orig_img/fig2d.png Graphic file (type png)
 <use orig_img/fig2d.png>
-Package pdftex.def Info: orig_img/fig2d.png  used on input line 70.
+Package pdftex.def Info: orig_img/fig2d.png  used on input line 81.
 (pdftex.def)             Requested size: 213.16214pt x 141.57701pt.
+<img/fig2d.png, id=23, 596.9502pt x 309.3156pt>
+File: img/fig2d.png Graphic file (type png)
+<use img/fig2d.png>
+Package pdftex.def Info: img/fig2d.png  used on input line 82.
+(pdftex.def)             Requested size: 213.16214pt x 110.45204pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
@@ -260,12 +260,12 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 <img/fig2e.png, id=24, 389.5353pt x 302.0886pt>
 File: img/fig2e.png Graphic file (type png)
 <use img/fig2e.png>
-Package pdftex.def Info: img/fig2e.png  used on input line 76.
+Package pdftex.def Info: img/fig2e.png  used on input line 90.
 (pdftex.def)             Requested size: 106.58107pt x 82.65285pt.
 <orig_img/fig2e.png, id=25, 769.87625pt x 654.445pt>
 File: orig_img/fig2e.png Graphic file (type png)
 <use orig_img/fig2e.png>
-Package pdftex.def Info: orig_img/fig2e.png  used on input line 77.
+Package pdftex.def Info: orig_img/fig2e.png  used on input line 91.
 (pdftex.def)             Requested size: 106.58107pt x 90.59311pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
@@ -273,25 +273,27 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 <img/fig4b.png, id=26, 111.41624pt x 111.41624pt>
 File: img/fig4b.png Graphic file (type png)
 <use img/fig4b.png>
-Package pdftex.def Info: img/fig4b.png  used on input line 83.
+Package pdftex.def Info: img/fig4b.png  used on input line 97.
 (pdftex.def)             Requested size: 106.58107pt x 106.58266pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[2 <./img/fig2a.png> <./orig_img/fig2a.png> <./img/fig2b.png> <./orig_img/fig2b.png> <./img/fig2c.png> <./orig_img/fig2c.png> <./img/fig2d.png> <./orig_img/fig2d.png> <./img/fig2e.png> <./orig_img/fig2e.png>] [3 <./img/fig4b.png (PNG copy)>] (./report.aux) ) 
+[2 <./orig_img/fig2a.png> <./img/fig2a.png> <./orig_img/fig2b.png> <./img/fig2b.png> <./orig_img/fig2c.png> <./img/fig2c.png>] [3 <./orig_img/fig2d.png> <./img/fig2d.png> <./img/fig2e.png> <./orig_img/fig2e.png> <./img/fig4b.png (PNG copy)>] [4
+
+] (./report.aux) ) 
 Here is how much of TeX's memory you used:
- 3406 strings out of 478287
- 49529 string characters out of 5849289
- 354693 words of memory out of 5000000
- 21571 multiletter control sequences out of 15000+600000
+ 3412 strings out of 478287
+ 49541 string characters out of 5849289
+ 355743 words of memory out of 5000000
+ 21577 multiletter control sequences out of 15000+600000
  481328 words of font info for 62 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 55i,8n,62p,1000b,250s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1728.pfb>
-Output written on report.pdf (3 pages, 717648 bytes).
+ 55i,8n,62p,989b,250s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1728.pfb>
+Output written on report.pdf (4 pages, 721194 bytes).
 PDF statistics:
- 96 PDF objects out of 1000 (max. 8388607)
- 46 compressed objects within 1 object stream
+ 99 PDF objects out of 1000 (max. 8388607)
+ 48 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  56 words of extra memory for PDF output out of 10000 (max. 10000000)
 

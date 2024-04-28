@@ -22,73 +22,82 @@
 
     The previous work also showed that, using their specific method, the weights of the GRN tended to move towards the weights acheived by hebbian learning on the training data. This result is significant, as it suggests a hill climbing algorithm may in part be equivalent to more traditional 'intelligent' machine learning algorithms.
 
+    This paper aims to initially reimplement the algorithms of the previous work, and reproduce the results obtained. Following this, an extension to the previous work is proposed, which aims to more accurately model the interactions between genes in a GRN. This extension is then extensively tested and the results are compared to the original work.
+
     \section{Experiment Setup}
-    This paper first reimplements the algorithms from the previous work, and then reproduces the results obtained by that paper. For that reason, a genotype of an individual is represented by a vector $G$. This vector can contain any values, but in practice these values stay as small numbers centered around zero.
+    To represent the genotype of an organism, a vector $G$ is used. This vector has an element per gene in the organism, which in many of the presented cases represents a pixel in an image. Each element can be any in the range $[-1,1]$.
+
+    The GRN is represented by an interaction matrix $B$, which has the same number of rows and columns as there are elements in $G$. The state of the GRN at time $t$ is represented by a vector $P(t)$, which is governed by (\ref{eq:origpa}) and (\ref{eq:origp}). $P(t)$ has no upper and lower bound.
     
-    The GRN is represented by an interaction matrix $B$, which has the same number of rows and columns as there are elements in $G$. The state of the GRN at time $t$ is represented by a vector $P(t)$, which is governed by (\ref{eq:origpa}) and (\ref{eq:origp}).
     \begin{equation} \label{eq:origpa}
         P(1) = G
     \end{equation}
     \begin{equation} \label{eq:origp}
         P(t+1) = P(t) + \tau_1 \sigma (B P(t)) - \tau_2 P(t)
     \end{equation}
-    Where $\tau_1$ and $\tau_2$ are the update rate and decay rate of the network respectively, and $\sigma$ is the $tanh$ function. The final phenotype on which the fitness is evaluated is given by $P(t_{final})$, where $t_{final}$ is set to 10 for all tests in this paper.
+    Where $\tau_1$ and $\tau_2$ are the update rate and decay rate of the network respectively, and $\sigma$ is the $tanh$ function. The final phenotype on which the fitness is evaluated is given by $P(t_{final})$, where $t_{final}$ is set to 10 for all experiments in this paper.
 
     The fitness function is a modified version of that used in the previous work and is given by (\ref{eqn:fitness}).
     \begin{equation} \label{eqn:fitness}
-        |{sum} (P \odot T)|
+        |{sum} (P(t_{final}) \odot T)|
     \end{equation}
-    In this equation, $P$ is the produced phenotype, $T$ is the target phenotype, and $\odot$ is the element-wise multiplication operator. Using this function, a value of 0 is minimally fit, but the fitness can extend to positive infinity. The reason for taking the absolute is that a perfect negative of the produced phenotype is indistinguishable from the target phenotype for the GRN. In the previous work, the fitness function would penalise a perfect negative, however this paper chooses to reward this.
+    In this equation, $T$ is the target phenotype and $\odot$ is the element-wise multiplication operator. Using this function, a value of 0 is minimally fit, but the fitness can extend to positive infinity. The reason for taking the absolute is that a perfect negative of the produced phenotype is indistinguishable from the target phenotype for the GRN. In the previous work, the fitness function would penalise a perfect negative, however this paper chooses to reward it.
 
-    The genetic algorithm (GA) used in this paper is a simple point mutation hill climbing model. At any given step, there exist two individuals. One of these represents the previous best individual, and the other is a mutated version of the previous best. At each step, the mutated individual is re-initialised to the previous best, then a random point mutation is applied to both its genotype and GRN. If the mutated individual has a higher fitness than the previous best, it becomes the new previous best. This process is repeated for a set number of iterations, and the final best individual is returned. It is very important that the point mutation size of the GRN is significantly smaller than that of the genotype, otherwise the GRN may overwrite previously learned information. Mutations are either a uniformly or normally distributed random number, which is added to the previous value of the gene.
+    The genetic algorithm (GA) used in this paper is a simple point mutation hill climbing model. At any given time step, there exist two individuals. One of these represents the previous best individual, and the other is a mutated version of the previous best. At each step, the mutated individual is re-initialised to the previous best, then a random point mutation is applied to both its genotype and GRN. If the mutated individual has a higher fitness than the previous best, it becomes the new previous best. This process is repeated for a set number of iterations, and the final best individual is returned. It is imperative that the point mutation size of the GRN is significantly smaller than that of the genotype, otherwise the GRN may overwrite previously learned information. Mutations are either a uniformly or normally distributed random number, which is added to the previous value of the gene.
 
     \section{Reimplemented Results 1pg}
+    The first experiment that was reimplemented was experiment 2, shown in Figure 2 in the original work. This experiment aimed to show that the GRN was capable of remembering multiple phenotypes, and was able to reproduce them in future iterations. It also aimed to perform an in depth analysis of the behaviour of the state of the GRN though the timesteps.
+    
+    For this experiment, SPEAK ABOUT THE EXPERIMENT PARAMETERS.
+
+    Figure \ref{fig:2a} shows how the values of each of the various values of the GRN matrix change thoughout the generations. Each value is represented by a line, with the x-axis representing the generation number and the y-axis representing the value of the matrix. It is clear to see that there are three distinct groups of parameters: increasing, decreasing, and static. The increasing and decreaseing groups are due to the GRN learning either a positive or negative correlation between the genes that cell connects, whereas the static group is due to the GRN learning that the genes are not correlated.
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.48\linewidth]{img/fig2a.png}
         \includegraphics[width=0.48\linewidth]{orig_img/fig2a.png}
-        \caption{On the left, the original paper. On the right, the reimplemented results.}
+        \includegraphics[width=0.48\linewidth]{img/fig2a.png}
+        \caption{Values in $B$ over generations. On the left, the original paper. On the right, the reimplemented results.} \label{fig:2a}
     \end{figure}
+
+    Figure \ref{fig:2b} shows a visual representation of the matrix $B$ at the end of training. An identical pattern to that of the original paper emerged, however the weights have a different scale. This is expected, and is due to small changes in the implementation, such as mutation rate. Similarly, Figure \ref{fig:2c} shows the weights obtained using Hebbian learning for $B$. As expected, the weights are very similar to those obtained through hill climbing, suggesting that the hill climbing algorithm may approximate Hebbian learning in this situation.
 
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.48\linewidth]{img/fig2b.png}
         \includegraphics[width=0.48\linewidth]{orig_img/fig2b.png}
-        \caption{On the left, the original paper. On the right, the reimplemented results.}
+        \includegraphics[width=0.48\linewidth]{img/fig2b.png}
+        \caption{The final weights in $B$ obtained through a hill climbing process. On the left, the original paper. On the right, the reimplemented results.} \label{fig:2b}
     \end{figure}
 
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.48\linewidth]{img/fig2c.png}
         \includegraphics[width=0.48\linewidth]{orig_img/fig2c.png}
-        \caption{On the left, the original paper. On the right, the reimplemented results.}
+        \includegraphics[width=0.48\linewidth]{img/fig2c.png}
+        \caption{The weights obtained using Hebbian learning for $B$. On the left, the original paper. On the right, the reimplemented results.} \label{fig:2c}
     \end{figure}
+
+    Figure \ref{fig:2d} demonstrates how the values of $P$ change over the 10 developmental timesteps. Each gene in $P$ is represented by a line, with the x-axis representing the timestep and the y-axis representing the value of the gene. The results presented by this paper clearly follow the same pattern as those from the original work, with the genes all converging to either a stable positive or negative state by the end of the 10 timesteps. There is some correlation between a genes starting value and the state it finally ends up in, but the figure shows that this is not the only factor.
 
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.9\linewidth]{img/fig2d.png}
         \includegraphics[width=0.9\linewidth]{orig_img/fig2d.png}
-        \caption{On the left, the original paper. On the right, the reimplemented results.}
+        \includegraphics[width=0.9\linewidth]{img/fig2d.png}
+        \caption{On the top, the original paper. On the bottom, the reimplemented results.} \label{fig:2d}
     \end{figure}
 
+    Figure \ref{fig:2e} shows a selection of phenotypes produced by the GRN when given a random genotype as input. The results are very similar to those of the original paper, with the GRN producing both targets that are present in the training data. The GRN also produces the inverses of the two targets, which is to be expected.
+    
     \begin{figure}[h]
         \centering
         \includegraphics[width=0.45\linewidth]{img/fig2e.png}
         \includegraphics[width=0.45\linewidth]{orig_img/fig2e.png}
-        \caption{On the left, the original paper. On the right, the reimplemented results.}
+        \caption{On the left, the original paper. On the right, the reimplemented results.} \label{fig:2e}
     \end{figure}
 
     \begin{figure}[h]
         \centering
         \includegraphics[width=0.45\linewidth]{img/fig4b.png}
-        \caption{Bestiary of genotypes reimplemented to the specification of Figure 4 in the original paper.}
+        \caption{Bestiary of genotypes reimplemented to the specification of Figure 4 in the original paper.} \label{fig:4b}
     \end{figure}
 
-    \begin{itemize}
-        \item 1 Page
-        \item The reimplemented figures (side by side with the originals)
-        \item Discussion of what the results show/don't show, what worked/didn't work, what you learned
-    \end{itemize}
     \section{Extension 1pg}
     The previously described model of a GRN is a significant abstraction of the true complexity of the interactions between genes. To extend this work, this paper proposes a more advanced model of a GRN which takes inspiration from protein production in genes.
 
