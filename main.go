@@ -69,7 +69,7 @@ func main() {
 	case Sparse:
 		makeTF = func() TransferFunc { return NewSparseTransferFunc(imgVolume, 10, 0.01) }
 	case BitDense:
-		makeTF = func() TransferFunc { return NewBitDenseTransferFunc(imgVolume, 20, true, 0.0067, 0.005) }
+		makeTF = func() TransferFunc { return NewBitDenseTransferFunc(imgVolume, 20, true, 0.003, 0.0025) }
 	}
 
 	// Clear the imgs folder

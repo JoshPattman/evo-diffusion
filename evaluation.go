@@ -14,6 +14,19 @@ func Evaluate(g *Genotype, r *RegulatoryNetwork, target *mat.VecDense) float64 {
 	return hs
 }
 
+func EvaluateSilly(r *RegulatoryNetwork, target *mat.VecDense) float64 {
+	// generate 100 random genotypes, evaluate them all, return the best score
+	best := math.Inf(-1)
+	for i := 0; i < 10; i++ {
+		g := NewGenotype(target.Len(), 0.1)
+		score := Evaluate(g, r, target)
+		if score > best {
+			best = score
+		}
+	}
+	return best
+}
+
 func imgHebbScore(predicted, target *mat.VecDense) float64 {
 	hs := mat.NewVecDense(predicted.Len(), nil)
 	hs.MulElemVec(predicted, target)
