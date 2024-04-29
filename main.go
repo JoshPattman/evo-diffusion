@@ -33,7 +33,7 @@ const (
 
 func main() {
 	// Training loop params
-	datasetPath := Stalks
+	datasetPath := Arbitary2
 	logWeights := datasetPath == Arbitary || datasetPath == Arbitary2
 
 	// Load the dataset
@@ -45,10 +45,10 @@ func main() {
 	fmt.Println("Loaded", len(images), "images of size", imgSizeX, "x", imgSizeY, "(", imgVolume, "pixels )")
 	fmt.Println("Min img val", mat.Min(images[0]), "Max img val", mat.Max(images[0]))
 
-	resetTargetEvery := 1000 * imgVolume / 4
+	resetTargetEvery := 2000 //1000 * imgVolume / 4
 	logEvery := 100
 	drawEvery := resetTargetEvery //* 3
-	maxGenerations := resetTargetEvery * 100
+	maxGenerations := 80000       //resetTargetEvery * 100
 
 	fmt.Printf("Target will be reset every %d generations, with max generations of %d\n", resetTargetEvery, maxGenerations)
 
@@ -57,7 +57,7 @@ func main() {
 	updateRate := 1.0
 	decayRate := 0.2
 	timesteps := 10
-	transferFuncType := BitDense
+	transferFuncType := Dense
 
 	// Create transfer func
 	var makeTF func() TransferFunc
