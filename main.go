@@ -18,6 +18,7 @@ const (
 	SparseChems
 	Sparse
 	BitDense
+	MaskedDense
 )
 
 type Dataset string
@@ -29,11 +30,12 @@ const (
 	Darwin    Dataset = "datasets/darwin"
 	Simple    Dataset = "datasets/simple"
 	Simpler   Dataset = "datasets/simpler"
+	Modular   Dataset = "modular"
 )
 
 func main() {
 	// Training loop params
-	datasetPath := Arbitary2
+	datasetPath := Modular
 	logWeights := datasetPath == Arbitary || datasetPath == Arbitary2
 
 	// Load the dataset
@@ -45,10 +47,10 @@ func main() {
 	fmt.Println("Loaded", len(images), "images of size", imgSizeX, "x", imgSizeY, "(", imgVolume, "pixels )")
 	fmt.Println("Min img val", mat.Min(images[0]), "Max img val", mat.Max(images[0]))
 
-	resetTargetEvery := 2000 //1000 * imgVolume / 4
+	resetTargetEvery := 1000 * imgVolume / 4
 	logEvery := 100
-	drawEvery := resetTargetEvery //* 3
-	maxGenerations := 80000       //resetTargetEvery * 100
+	drawEvery := resetTargetEvery * 10
+	maxGenerations := resetTargetEvery * 1000
 
 	fmt.Printf("Target will be reset every %d generations, with max generations of %d\n", resetTargetEvery, maxGenerations)
 
@@ -57,7 +59,8 @@ func main() {
 	updateRate := 1.0
 	decayRate := 0.2
 	timesteps := 10
-	transferFuncType := Dense
+	transferFuncType := MaskedDense
+	l2Fac := 0.0
 
 	// Create transfer func
 	var makeTF func() TransferFunc
@@ -69,12 +72,19 @@ func main() {
 	case Sparse:
 		makeTF = func() TransferFunc { return NewSparseTransferFunc(imgVolume, 10, 0.01) }
 	case BitDense:
-		makeTF = func() TransferFunc { return NewBitDenseTransferFunc(imgVolume, 20, true, 0.003, 0.0025) }
+		makeTF = func() TransferFunc { return NewBitDenseTransferFunc(imgVolume, 8, true, 0.003, 0.0025) }
+	case MaskedDense:
+		makeTF = func() TransferFunc { return NewMaskedDenseTransferFunc(imgVolume, true, 0.0067, 0.001) }
 	}
 
 	// Clear the imgs folder
 	//os.RemoveAll("imgs")
 	os.Mkdir("imgs", os.ModePerm)
+
+	// Generate a diagram of the dataset
+	if datasetPath == Modular {
+		SaveImg("imgs/dataset.png", GenerateDatasetDiagram(images, 16, 16, imgSizeX))
+	}
 
 	// First compute the hebb weights
 	hebbWeights := GenerateHebbWeights(images, 30, 0.02)
@@ -118,14 +128,14 @@ func main() {
 		if pulse {
 			tar = images[(gen/resetTargetEvery)%len(images)]
 			bestGenotype = NewGenotype(bestGenotype.Vector.Len(), bestGenotype.ValsMaxMut)
-			bestEval = Evaluate(bestGenotype, bestRegNet, tar)
+			bestEval = Evaluate(bestGenotype, bestRegNet, tar, l2Fac)
 		}
 
 		// Mutate the test genotype and evaluate it
 		testGenotype.Mutate()
 		testRegNet.Mutate()
 
-		testEval := Evaluate(testGenotype, testRegNet, tar)
+		testEval := Evaluate(testGenotype, testRegNet, tar, l2Fac)
 		// If the test genotype is better than the best genotype, copy it over, otherwise reset to prev best
 		if testEval > bestEval {
 			bestGenotype.CopyFrom(testGenotype)

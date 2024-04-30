@@ -29,6 +29,8 @@ func LoadDataset(dataPath string) ([]*mat.VecDense, int, int, error) {
 		return loadArbitaryDataset()
 	} else if dataPath == "arbitary2" {
 		return loadArbitaryDataset2()
+	} else if dataPath == "modular" {
+		return loadModularDataset()
 	}
 	// Find all subfolders in the data path
 	subfolders, err := os.ReadDir(dataPath)
@@ -126,4 +128,30 @@ func Img2Vec(img image.Image) *mat.VecDense {
 		}
 	}
 	return mat.NewVecDense(size, data)
+}
+
+// The modular dataset is a set of 3x3 images
+// Each row in the image is a module, independant of each other
+func loadModularDataset() ([]*mat.VecDense, int, int, error) {
+	aModules := [][]float64{
+		{1, -1, -1, -1},
+		{-1, 1, -1, -1},
+		{-1, -1, 1, -1},
+		{-1, -1, -1, 1},
+	}
+
+	allModules := make([]*mat.VecDense, 0, len(aModules)*len(aModules)*len(aModules))
+	for _, a := range aModules {
+		for _, b := range aModules {
+			for _, c := range aModules {
+				for _, d := range aModules {
+					allModules = append(allModules, mat.NewVecDense(16, append(append(append(a, b...), c...), d...)))
+				}
+			}
+		}
+	}
+
+	rng := rand.New(rand.NewSource(42))
+	rng.Shuffle(len(allModules), func(i, j int) { allModules[i], allModules[j] = allModules[j], allModules[i] })
+	return allModules, 4, 4, nil
 }

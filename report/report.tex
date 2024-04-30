@@ -45,7 +45,7 @@
 
     The genetic algorithm (GA) used in this paper is a simple point mutation hill climbing model. At any given time step, there exist two individuals. One of these represents the previous best individual, and the other is a mutated version of the previous best. At each step, the mutated individual is re-initialised to the previous best, then a random point mutation is applied to both its genotype and GRN. If the mutated individual has a higher fitness than the previous best, it becomes the new previous best. This process is repeated for a set number of iterations, and the final best individual is returned. It is imperative that the point mutation size of the GRN is significantly smaller than that of the genotype, otherwise the GRN may overwrite previously learned information. Mutations are either a uniformly or normally distributed random number, which is added to the previous value of the gene.
 
-    \section{Reimplemented Results 1pg}
+    \section{Reimplemented Results}
     The first experiment that was reimplemented was experiment 2, shown in Figure 2 in the original work. This experiment aimed to show that the GRN was capable of remembering multiple phenotypes, and was able to reproduce them in future iterations. It also aimed to perform an in depth analysis of the behaviour of the state of the GRN though the timesteps.
     
     For this experiment, SPEAK ABOUT THE EXPERIMENT PARAMETERS.
@@ -98,7 +98,7 @@
         \caption{Bestiary of genotypes reimplemented to the specification of Figure 4 in the original paper.} \label{fig:4b}
     \end{figure}
 
-    \section{Extension 1pg}
+    \section{Extension}
     The previously described model of a GRN is a significant abstraction of the true complexity of the interactions between genes. To extend this work, this paper proposes a more advanced model of a GRN which takes inspiration from protein production in genes.
 
     In a biological GRN, the expression level of a gene is affected not directly by the expression levels of other genes, but instead by the levels of protiens produced by those genes. It also may be the case that there are significantly fewer unique protiens available for this purpose than there are genes, meaning that genes with similar functions may have to evolve to use similar proteins for regulation. These features of GRNs are not caputered by using a single regulation matrix to represent the interaction between genes.

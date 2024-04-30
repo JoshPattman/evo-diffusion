@@ -105,6 +105,20 @@ func GenerateBestiaryDiagram(r *RegulatoryNetwork, rows, cols, imgSize int) imag
 	return img
 }
 
+func GenerateDatasetDiagram(imgs []*mat.VecDense, rows, cols, imgSize int) image.Image {
+	img := image.NewRGBA(image.Rect(0, 0, 1+(imgSize+1)*cols, 1+(imgSize+1)*rows))
+	draw.Draw(img, img.Bounds(), &image.Uniform{color.RGBA{0, 0, 255, 255}}, image.Point{}, draw.Src)
+	x := 0
+	for i := 0; i < rows; i++ {
+		for j := 0; j < cols; j++ {
+			res := imgs[x]
+			x++
+			draw.Draw(img, image.Rect(1+j*(imgSize+1), 1+i*(imgSize+1), 1+(j+1)*(imgSize+1), 1+(i+1)*(imgSize+1)), Vec2Img(res, imgSize, imgSize), image.Point{}, draw.Src)
+		}
+	}
+	return img
+}
+
 func GenerateFig12EDiagram(r *RegulatoryNetwork, rows, vecLength int) image.Image {
 	results := make([]*mat.VecDense, rows)
 	for i := range results {
