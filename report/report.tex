@@ -1,4 +1,4 @@
-\documentclass[twocolumn,a4paper,12pt]{article}
+\documentclass[twocolumn,a4paper,11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath}
@@ -8,7 +8,7 @@
 \usepackage[margin=2cm]{geometry}
 
 \author{Josh Pattman}
-\title{Evolutionary Learning In Two Stage Gene Networks}
+\title{Evolutionary Learning with Extended Mutation Techniques}
 \begin{document}
 	\maketitle
     \section{Introduction}
@@ -99,47 +99,37 @@
     \end{figure}
 
     \section{Extension}
-    The previously described model of a GRN is a significant abstraction of the true complexity of the interactions between genes. To extend this work, this paper proposes a more advanced model of a GRN which takes inspiration from protein production in genes.
+    The previously descibed model of a GRN provides a significant abstration of the concept of mutations, by modelling a mutation as a small change of the value of the weight between genes. However, this method ignores two other important types of mutation: enabling and disabling connections, and inverting connections.
 
-    In a biological GRN, the expression level of a gene is affected not directly by the expression levels of other genes, but instead by the levels of protiens produced by those genes. It also may be the case that there are significantly fewer unique protiens available for this purpose than there are genes, meaning that genes with similar functions may have to evolve to use similar proteins for regulation. These features of GRNs are not caputered by using a single regulation matrix to represent the interaction between genes.
+    When a connection in the GRN is disabled, it maintains its weight but does not contribute to the development of a genotype. However, in the future, this connection may be re-enabled to restore the original weight. This is analogous to rescessive genes in biology, where a gene may still exist but is not expressed in the phenotype of a creature, however that gene may be re-enabled in a descendant of that creature.
+    
+    Inverting a connection entails reversing the influence of a connection, or in the context of the mathematical model, multiplying the connection by $-1$. This provides the evolutionary process with the ability to quickly reverse the influence of a connection, and therefore the influence which one locus in the genotype has on another. This mutation abstraction has biological parralells with repressor and activator genes, which are the mechanism of GRNs for genes to controll the expression level of each other. Where small incremental mutations such as those implemented by the original work may represent a change in the concentration of a produced activator or repressor, an inversion mutation may signify a switch from a gene producing a repressor to an activator, or vice versa.
+
+    This paper presents a modification to the original model to implement these new mutation types, and hypothesises in the effects of including these. The new mutations are subsequently tested in-depth, and a detailed analysis is given based on the results.
 
     \subsection{Goals and Hypothesis}
-    This extension focusses on simulating these intermediate messenger proteins in a simplified manner while maintaining maximum similarity with the previously described method, enabling simple comparisons between the two.
+    The aim of the following experiments is to demonstrate the importance of these new types of mutation, and to present evidence for the following hypothesises:
 
-    The hypothesis of this experiment is two-fold:
+
+    TODO: I hate the wording of these hypothesis
     \begin{enumerate}
-        \item \textbf{The gene regulation network will be able to remember previously expressed phenotipic patterns even with an overall reduction in the number of parameters when compared to a dense network.} This is because in the datasets used for these experiments, and indeed real life, there are patterns that the network should be ableto encode into a single protien. Each pattern may then also affect multiple genes in a similar way. These features leave much room for the network to genralise and group certain features that behave in similar ways together.
-        \item \textbf{The gene regulation network may become more robust and better at genralising to new patterns, as it is forced to 'make sense' of the input genotype.} In traditional machine learning, a bottleneck is a point in a model where there are fewer features than there were inputs to the model, forcing the network to learn the patterns in its data rather than memerising it. Hypothetically, this should also apply to a GRN with fewer chemicals than genes, as the GRN will need to extract only the most important information from the inputs in order to best create an accurate output.
+        \item The ability for a GRN to enable and disable genes will be extremely useful for increasing the level of genralisation possible. It has been shown that one of the largest contributors to preventing a GRN from learning genral patterns is the presence of stray connections CITEME. These are introduced in the training set of data, but do not contribute to fitness with thos data samples. The solution to this problem is to encourage the GRN to use as few weigths as possible to achive a maximal fitness, which has been implemented using an L2 normalisation term in the past CITEME. However, with the process of disabling genes being so simple for the GRN with this type of mutation, the amount of stray connections may drasically reduce, especially if also paired with a normalisation term.
+        \item The GRN may find local optima easier to escape due to the ability for flip connections to occur, enabling much larger changes in its behaviour. One of the common issue with a trained GRN is that single pixels may be confidently expressed as the incorrect color. It may be simpler for the GRN to flip these when a weight inversion is possible.
     \end{enumerate}
 
     \subsection{Model}
-    To represent this new model of a GRN, the singe interaction matrix $B$ must be replaced by two distinct matricies, one for encoding a state of the GRN into a vector representing the protein production, $B_e$, and one for decoding a protien production vector into the updates to each state, $B_d$. Given a number of available proteins $n_{protein}$ and the genotype size $n_{genotype}$, $B_e$ has dimensions $(n_{protein},n_{genotype})$, and $B_d$ has dimensions $(n_{genotype},n_{protein})$. Given these matricies the phenotype at the next timestep, column vector $P(t+1)$, is given by the equation
-    \begin{equation}
-        P(t+1) = P(t) + \tau_1 \sigma (B_d (B_e P(t))) - \tau_2 P(t)
+    The aims of producing a model for the updated GRN were two-fold. Firstly, the extended model should introduce as little extra complexity as possible, which would not only maintain fast simulation times but also ensure the model would not stray too far from its biological inspiration. Secondly, the model should maintain maximum similarities to the original, maintaining easy comparisons between the structure and performance of the two.
+
+    The presented model, formalised in Equations \ref{eq:extenda} and \ref{eq:extendb}, furfills both of these requirements. In Equation \ref{eq:extendb}, the $*$ symbol represents element-wise matrix multiplication, the matrix $B_s$ is the sign matrix, and $B_m$ denotes the magnitude matrix. The sign matrix contains values in the set $\{-1,0,1\}$, however the magnitude matrix may contain any values. All other symbols hold the same meaning as those in Equation \ref{eq:origp}.
+
+    \begin{equation} \label{eq:extenda}
+        P(1) = G
     \end{equation}
-    Where $\tau_1$ and $\tau_2$ are the update rate and decay rate of the network respectively, and $\sigma$ is the sigmoid function.
+    \begin{equation} \label{eq:extendb}
+        P(t+1) = P(t) + \tau_1 \sigma ((B_s * B_m) P(t)) - \tau_2 P(t)
+    \end{equation}
 
-    Mutations also work in a different way in this model. Instead of directly mutating the values of $B$, the values of $B_e$ and $B_d$ are mutated. Mutations are performed on $B_d$ in the same way as they are applied to $B$ in the original model, however, mutations on $B_e$ can only mutate values of the matrix to $1$, $0$, or $-1$.
-    
-    The reason behind this is primarily to allow the evolutionary process to easily invert and enable or disable the effects of one gene on another. The prescision of mutating a floating point value is not needed here because finer control can be performed by the second matrix, $B_d$. Combining these two effects together allows the evolutionary process to make both more drastic and also more subtle changes to the GRN, which hypothetically may allow it to more easily recover from local optima. This simplification of $B_e$ also significantly reduces the parameter space of the model, which should benefit rate of learning. However, due to the fact that changes to $B_e$ have a much greater effect on the output than changes to $B_d$, the chance of mutation on $B_e$ must be much lower than that of $B_d$. In these tests, the chance that $B_e$ was mutated instead of $B_d$ was $0.005$.
-
-    This method has some useful properties aside from furfilling the aim to simulate the intermediate properties:
-    \begin{enumerate}
-        \item Mapping the previous state to the next state with two matricies may be a faster computation with fewer parameters compared to a single interaction matrix, as long as
-        \begin{equation}
-            n_{protien} < n_{genotype} \div 2
-        \end{equation}
-            
-        \item As the matricies are multiplied linearly together, it is possible to find the equivalent single interaction matrix by performing the calculation
-        \begin{equation}
-            B = B_dB_e
-        \end{equation}
-        Computing the single interaction matrix enables simple comparison to both the original approach, and the weights derived from Hebbs rule, which is useful when evaluating if this model maintains the tendancy to move towards the Hebbian weights.
-    \end{enumerate}
-    \begin{itemize}
-        \item TODO: Support the value of asking that question (using literature)
-    \end{itemize}
-
+    Mutations on this model are applied with a differnt process to that of the original. Firtly, the matrix to mutate is randomly chosen with a probability which heavily favours the matrix $B_m$. In the following experiments, the chance of mutating $B_s$ was $0.1\%$. If $B_m$ was chose, mutations are applied as descibed in the original model. However, if $B_s$ is chose to be mutated, a random cell of the matrix is changed to a value chosen unformly from the set $\{-1,0,1\}$, irrespective of what the cell's value was before.
 
     \section{Extension Results}
     \begin{itemize}
