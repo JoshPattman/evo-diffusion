@@ -35,7 +35,7 @@ const (
 
 func main() {
 	// Training loop params
-	datasetPath := Modular
+	datasetPath := Arbitary2
 	logWeights := datasetPath == Arbitary || datasetPath == Arbitary2
 
 	// Load the dataset
@@ -50,7 +50,7 @@ func main() {
 	resetTargetEvery := 1000 * imgVolume / 4
 	logEvery := 100
 	drawEvery := resetTargetEvery * 10
-	maxGenerations := resetTargetEvery * 1000
+	maxGenerations := resetTargetEvery * 100
 
 	fmt.Printf("Target will be reset every %d generations, with max generations of %d\n", resetTargetEvery, maxGenerations)
 

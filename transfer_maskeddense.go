@@ -61,5 +61,5 @@ func (d *MaskedDenseTransferFunc) Transfer(state, into *mat.VecDense) {
 }
 
 func (d *MaskedDenseTransferFunc) CombinedWeightsMatrix() *mat.Dense {
-	return d.Mask //d.mulBuf
+	return d.mulBuf
 }
