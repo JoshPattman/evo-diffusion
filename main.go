@@ -24,18 +24,25 @@ const (
 type Dataset string
 
 const (
-	Arbitary  Dataset = "arbitary"
-	Arbitary2 Dataset = "arbitary2"
-	Stalks    Dataset = "datasets/stalks"
-	Darwin    Dataset = "datasets/darwin"
-	Simple    Dataset = "datasets/simple"
-	Simpler   Dataset = "datasets/simpler"
-	Modular   Dataset = "modular"
+	Arbitary   Dataset = "arbitary"
+	Arbitary2  Dataset = "arbitary2"
+	Stalks     Dataset = "datasets/stalks"
+	StalksFull Dataset = "datasets/stalks_full"
+	Darwin     Dataset = "datasets/darwin"
+	Simple     Dataset = "datasets/simple"
+	Simpler    Dataset = "datasets/simpler"
+	Modular    Dataset = "modular"
+	None       Dataset = ""
 )
 
 func main() {
 	// Training loop params
-	datasetPath := Arbitary2
+	datasetPath := Stalks
+	genDataPath := None
+	if datasetPath == Stalks {
+		genDataPath = StalksFull
+
+	}
 	logWeights := datasetPath == Arbitary || datasetPath == Arbitary2
 
 	// Load the dataset
@@ -47,9 +54,14 @@ func main() {
 	fmt.Println("Loaded", len(images), "images of size", imgSizeX, "x", imgSizeY, "(", imgVolume, "pixels )")
 	fmt.Println("Min img val", mat.Min(images[0]), "Max img val", mat.Max(images[0]))
 
+	imagesTest, _, _, err := LoadDataset(string(genDataPath))
+	if err != nil {
+		panic(err)
+	}
+
 	resetTargetEvery := 1000 * imgVolume / 4
 	logEvery := 100
-	drawEvery := resetTargetEvery * 10
+	drawEvery := resetTargetEvery
 	maxGenerations := resetTargetEvery * 100
 
 	fmt.Printf("Target will be reset every %d generations, with max generations of %d\n", resetTargetEvery, maxGenerations)
@@ -59,7 +71,7 @@ func main() {
 	updateRate := 1.0
 	decayRate := 0.2
 	timesteps := 10
-	transferFuncType := MaskedDense
+	transferFuncType := Dense
 	l2Fac := 0.0
 
 	// Create transfer func
@@ -100,9 +112,11 @@ func main() {
 
 	// Create the log file
 	type EvoLogRow struct {
-		Generation  int
-		BestEval    float64
-		FlatWeights string
+		Generation                   int
+		BestEval                     float64
+		FlatWeights                  string
+		PercentUniqueClassesProduced float64
+		PercentOfProductionsValid    float64
 	}
 	csvLogger, err := NewFileCSVLogger[EvoLogRow]("./imgs/log.csv")
 	if err != nil {
@@ -161,7 +175,19 @@ func main() {
 			} else {
 				flatWeights = []string{"0.0"}
 			}
-			csvLogger.Log(EvoLogRow{Generation: gen, BestEval: bestEval, FlatWeights: strings.Join(flatWeights, ":")})
+			imgTest := images
+			if genDataPath != None {
+				imgTest = imagesTest
+			}
+			produceNum := len(imgTest) * 4
+			numUniqueClassesSeen, numInTargets := GenerateAndCountUnique(bestRegNet, produceNum, imgTest)
+			csvLogger.Log(EvoLogRow{
+				Generation:                   gen,
+				BestEval:                     bestEval,
+				FlatWeights:                  strings.Join(flatWeights, ":"),
+				PercentUniqueClassesProduced: float64(numUniqueClassesSeen) / float64(len(imgTest)),
+				PercentOfProductionsValid:    float64(numInTargets) / float64(produceNum),
+			})
 		}
 
 		// Draw the images every drawEvery generations

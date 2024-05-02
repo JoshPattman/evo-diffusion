@@ -31,6 +31,8 @@ func LoadDataset(dataPath string) ([]*mat.VecDense, int, int, error) {
 		return loadArbitaryDataset2()
 	} else if dataPath == "modular" {
 		return loadModularDataset()
+	} else if dataPath == "" {
+		return nil, 0, 0, nil
 	}
 	// Find all subfolders in the data path
 	subfolders, err := os.ReadDir(dataPath)

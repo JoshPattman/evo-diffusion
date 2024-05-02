@@ -18,7 +18,7 @@
     \section{Introduction}
     Two of the most important features when describing an organism are its genotype and its phenotype. A genotype encompasses the entire genetic code of an organism, while the phenotype is the physical manifestation of that code as specific traits such as size or color. The relationship between a genotype and a phenotype is a complex one, as a single locus in the genotype does not hold a one-to-one relationship with a single trait in the phenotype. Instead, the phenotype is the result of the entire genotype interacting with the gene regulation network (GRN) of the organism \citeme.
 
-    A GRN is a mechanism by which the various genes in the genotype interact by stimulating or repressing each other, eventually resulting in a stable state describing the phenotype. This is an extremely complex process but has been simplified to a directed graph in previous research \cite{original-paper}. Each node in the GRN graph represents a locus in both the genotype and phenotype, and connections between nodes represent the interactions between genes. The topology of the GRN is not fixed throughout generations, but instead evolves alongside the genotypes of the organisms, with each organism having its own unique GRN. However, the rate of evolution of the GRN is significantly slower than that of the genotype, meaning that the GRN may retain information from previous fitness landscapes, even if that information is not immidiately useful to a given organism at the present time.
+    A GRN is a mechanism by which the various genes in the genotype interact by stimulating or repressing each other, eventually resulting in a stable state describing the phenotype. This is an extremely complex process but has been simplified to a directed graph in previous research \cite{original-paper}. Each node in the GRN graph represents a locus in both the genotype and phenotype, and connections between nodes represent the interactions between genes. The topology of the GRN is not fixed throughout generations, but instead evolves alongside the genotypes of the organisms, with each organism having its own unique GRN. However, the rate of evolution of the GRN is significantly slower than that of the genotype, meaning that the GRN may retain information from previous fitness landscapes, even if that information is not immediately useful to a given organism at the present time.
 
     Evolved GRNs have a number of interesting properties. For example, a GRN may recognise genes which frequently covary, and increase the likelihood of those genes being expressed together. A GRN also may take advantage of its ability to retain information to increase the likelihood of a group of traits from a previous landscape being expressed in the future. This is particularly useful in nature, as a previously proven trait of a creature may be more helpful in a future environment than a new randomly evolved one. This ability of a GRN to remember previous fitness landscapes will be reffered to as genetic memory throughout this research.
 
@@ -162,20 +162,15 @@
         P(t+1) = P(t) + \tau_1 \sigma ((B_s * B_m) P(t)) - \tau_2 P(t)
     \end{equation}
 
-    Mutations on this model are applied with a differnt process to that of the original. Firtly, the matrix to mutate is randomly chosen with a probability which heavily favours the matrix $B_m$. In the following experiments, the chance of mutating $B_s$ was $0.1\%$. If $B_m$ was chose, mutations are applied as descibed in the original model. However, if $B_s$ is chose to be mutated, a random cell of the matrix is changed to a value chosen unformly from the set $\{-1,0,1\}$, irrespective of what the cell's value was before.
+    Mutations on this model are applied with a different process to that of the original. Firtly, the matrix to mutate is randomly chosen with a probability which heavily favours the matrix $B_m$. In the following experiments, the chance of mutating $B_s$ was $0.1\%$. If $B_m$ was chose, mutations are applied as descibed in the original model. However, if $B_s$ is chose to be mutated, a random cell of the matrix is changed to a value chosen unformly from the set $\{-1,0,1\}$, irrespective of what the cell's value was before.
 
     \section{Extension Results}
     \begin{itemize}
-        \item 1.5 page
+        \item Repeat Exp2 but with the new mutations. Specifically, study the genes over epochs graph and and weights matrix
+        \item Create a metric for unique phenotypes prduced, part of the genralised set / not
+        \item Using new dataset, compare number of unique training phenotypes produced over generations with dense and maskeddense, and also l2dense
+        \item Show an image of the produced Bestiary
     \end{itemize}
-
-    Compare bestiary of dense to bitdense
-
-    Compare different number of proteins
-
-    Compare number of parameters
-
-    Compare training speed
 
 
     \section{Conclusion}
