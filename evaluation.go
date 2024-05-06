@@ -38,8 +38,8 @@ func CountUnique(produced, targets []*mat.VecDense) (numUniqueClassesSeen, numIn
 	seen := make(map[int]bool)
 	for _, p := range produced {
 		for ti, t := range targets {
-			score := sameScore(p, t)
-			if score > float64(p.Len())-3 {
+			numIncorrect := p.Len() - numCorrect(p, t)
+			if numIncorrect == 0 || numIncorrect == p.Len() {
 				numInTargets++
 				seen[ti] = true
 				break
@@ -49,14 +49,12 @@ func CountUnique(produced, targets []*mat.VecDense) (numUniqueClassesSeen, numIn
 	return len(seen), numInTargets
 }
 
-func sameScore(a, b *mat.VecDense) float64 {
-	// Clamp values in a and b
+func numCorrect(a, b *mat.VecDense) int {
+	total := 0
 	for i := 0; i < a.Len(); i++ {
-		a.SetVec(i, clamp(-1, 1)(a.AtVec(i)))
-		b.SetVec(i, clamp(-1, 1)(b.AtVec(i)))
+		if math.Signbit(a.AtVec(i)) == math.Signbit(b.AtVec(i)) {
+			total++
+		}
 	}
-	result := mat.NewVecDense(a.Len(), nil)
-	result.MulElemVec(a, b)
-	sum := mat.Sum(result)
-	return sum
+	return total
 }
