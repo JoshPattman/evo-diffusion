@@ -28,7 +28,9 @@ func GenerationalLoadingBar(generations, pulseEvery, length int, score *float64,
 				lastPrint = time.Now()
 			}
 		}
-		fmt.Println()
+		if enabled {
+			fmt.Println()
+		}
 	}
 }
 

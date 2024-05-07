@@ -3,10 +3,9 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: report.aux
 The style file: ieeetr.bst
 Database file #1: report.bib
-Warning--I didn't find a database entry for "rich"
 You've used 1 entry,
             1876 wiz_defined-function locations,
-            484 strings with 3678 characters,
+            483 strings with 3674 characters,
 and the built_in function-call counts, 421 in all, are:
 = -- 40
 > -- 17
@@ -45,4 +44,3 @@ warning$ -- 0
 while$ -- 3
 width$ -- 2
 write$ -- 13
-(There was 1 warning)

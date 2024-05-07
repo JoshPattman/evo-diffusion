@@ -25,16 +25,17 @@ const (
 type Dataset string
 
 const (
-	Arbitary      Dataset = "arbitary"
-	Arbitary2     Dataset = "arbitary2"
-	Stalks        Dataset = "datasets/stalks"
-	StalksReduced Dataset = "datasets/stalks_reduced"
-	StalksFull    Dataset = "datasets/stalks_full"
-	Darwin        Dataset = "datasets/darwin"
-	Simple        Dataset = "datasets/simple"
-	Simpler       Dataset = "datasets/simpler"
-	Modular       Dataset = "modular"
-	None          Dataset = ""
+	Arbitary       Dataset = "arbitary"
+	Arbitary2      Dataset = "arbitary2"
+	Stalks         Dataset = "datasets/stalks"
+	StalksReduced  Dataset = "datasets/stalks_reduced"
+	StalksFull     Dataset = "datasets/stalks_full"
+	Darwin         Dataset = "datasets/darwin"
+	Simple         Dataset = "datasets/simple"
+	Simpler        Dataset = "datasets/simpler"
+	Modular        Dataset = "modular"
+	ModularReduced Dataset = "modular_reduced"
+	None           Dataset = ""
 )
 
 type ExperimentConfig struct {
@@ -42,7 +43,9 @@ type ExperimentConfig struct {
 	GenDatasetPath Dataset
 
 	TransferFuncType  TransferFuncType
+	BMutationRate     float64
 	MaskedProbability float64
+	L2                float64
 
 	MaxGenerations          int
 	TargetSwitchGenerations int
@@ -66,40 +69,36 @@ func main() {
 	os.RemoveAll("imgs")
 	os.Mkdir("imgs", os.ModePerm)
 
-	exparams := ExperimentConfig{
-		DatasetPath:             Stalks,
-		GenDatasetPath:          StalksFull,
-		MaxGenerations:          3500000,
-		TargetSwitchGenerations: 25000,
-		LogEvery:                100,
-		DrawEvery:               12500,
-		EnableBestiary:          true,
-	}
-
 	wg := &sync.WaitGroup{}
 
-	runtest := func(tf TransferFuncType, testName string, repNum int, params ExperimentConfig, enableLogging bool, maskedProbability float64) {
-		params.TransferFuncType = tf
-		params.FileSuffix = fmt.Sprintf(":%s_%d", testName, repNum)
-		params.MaskedProbability = maskedProbability
-		if enableLogging {
-			params.EnableStdout = true
+	runtest := func(tf TransferFuncType, testName string, repNum int, enableLogging bool, maskedProbability, l2, bMutationRate float64) {
+		params := ExperimentConfig{
+			DatasetPath:             Stalks,
+			GenDatasetPath:          StalksFull,
+			MaxGenerations:          3500000,
+			TargetSwitchGenerations: 25000,
+			LogEvery:                100,
+			DrawEvery:               12500,
+			EnableBestiary:          true,
+
+			TransferFuncType:  tf,
+			FileSuffix:        fmt.Sprintf(":%s_%d", testName, repNum),
+			MaskedProbability: maskedProbability,
+			L2:                l2,
+			EnableStdout:      enableLogging,
+			BMutationRate:     bMutationRate,
 		}
 		test(params)
 		wg.Done()
 	}
 
 	repeats := 20
-	wg.Add(repeats * 8)
+	wg.Add(repeats * 4)
 	for i := 0; i < repeats; i++ {
-		go runtest(MaskedDense, "masked_0", i, exparams, false, 0)
-		go runtest(MaskedDense, "masked_0.000008", i, exparams, false, 0.000008)
-		go runtest(MaskedDense, "masked_0.00004", i, exparams, false, 0.00004)
-		go runtest(MaskedDense, "masked_0.0002", i, exparams, false, 0.0002)
-		go runtest(MaskedDense, "masked_0.001", i, exparams, false, 0.001)
-		go runtest(MaskedDense, "masked_0.005", i, exparams, false, 0.005)
-		go runtest(MaskedDense, "masked_0.025", i, exparams, false, 0.025)
-		go runtest(MaskedDense, "masked_0.125", i, exparams, i == 0, 0.125)
+		go runtest(MaskedDense, "dense", i, false, 0, 0, 0.0067)
+		go runtest(MaskedDense, "masked", i, false, 0.0038, 0, 0.0058)
+		go runtest(MaskedDense, "dense+l2", i, false, 0, 5.0, 0.0067)
+		go runtest(MaskedDense, "masked+l2", i, i == 0, 0.0038, 5.0, 0.0058)
 	}
 
 	wg.Wait()
@@ -134,12 +133,11 @@ func test(config ExperimentConfig) {
 	//fmt.Println("Min img val", mat.Min(images[0]), "Max img val", mat.Max(images[0]))
 
 	// Regulatory network params
-	vecMutationAmount := 0.25
-	numVecMutations := 3
+	vecMutationAmount := 0.1
+	numVecMutations := 1
 	updateRate := 1.0
 	decayRate := 0.2
 	timesteps := 10
-	l2Fac := 0.0
 
 	// Generate a dataset diagram
 	if config.EnableDatasetDiagram {
@@ -202,7 +200,7 @@ func test(config ExperimentConfig) {
 		if pulse {
 			tar = images[(gen/config.TargetSwitchGenerations)%len(images)]
 			bestGenotype = NewGenotype(bestGenotype.Vector.Len(), bestGenotype.ValsMaxMut)
-			bestEval = Evaluate(bestGenotype, bestRegNet, tar, l2Fac)
+			bestEval = Evaluate(bestGenotype, bestRegNet, tar, config.L2)
 		}
 
 		// Mutate the test genotype and evaluate it
@@ -211,7 +209,7 @@ func test(config ExperimentConfig) {
 		}
 		testRegNet.Mutate()
 
-		testEval := Evaluate(testGenotype, testRegNet, tar, l2Fac)
+		testEval := Evaluate(testGenotype, testRegNet, tar, config.L2)
 		// If the test genotype is better than the best genotype, copy it over, otherwise reset to prev best
 		if testEval > bestEval {
 			bestGenotype.CopyFrom(testGenotype)
@@ -304,15 +302,15 @@ func createTransferFunc(transferFuncType TransferFuncType, genotypeSize int, con
 	// Create transfer func
 	switch transferFuncType {
 	case Dense:
-		return NewDenseTransferFunc(genotypeSize, true, 0.0067)
+		return NewDenseTransferFunc(genotypeSize, true, config.BMutationRate)
 	case DoubleDense:
-		return NewDoubleDenseTransferFunc(genotypeSize, genotypeSize/4, true, 0.0067)
+		return NewDoubleDenseTransferFunc(genotypeSize, genotypeSize/4, true, config.BMutationRate)
 	case Sparse:
 		return NewSparseTransferFunc(genotypeSize, 10, 0.01)
 	case BitDense:
 		return NewBitDenseTransferFunc(genotypeSize, 8, true, 0.003, 0.0025)
 	case MaskedDense:
-		return NewMaskedDenseTransferFunc(genotypeSize, true, 0.0067, config.MaskedProbability)
+		return NewMaskedDenseTransferFunc(genotypeSize, true, config.BMutationRate, config.MaskedProbability)
 	}
 	panic("invalid transfer function type")
 }
