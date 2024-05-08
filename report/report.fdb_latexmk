@@ -1,14 +1,14 @@
 # Fdb version 3
-["bibtex report"] 1715105805 "report.aux" "report.bbl" "report" 1715105806
+["bibtex report"] 1715162191 "report.aux" "report.bbl" "report" 1715163313
   "/usr/share/texlive/texmf-dist/bibtex/bst/base/ieeetr.bst" 1292289607 18361 1a00e58565e7f19bf2b3e1bfb82254ae ""
-  "report.aux" 1715105806 5050 7a302b4e46174d696ba7264f0be86ad9 "pdflatex"
+  "report.aux" 1715163313 5595 4e45a00c533f0107b548fa51f9abb19a "pdflatex"
   "report.bib" 1714583012 4830 be37ac895be80c20571fee5fcfd8f4f7 ""
   (generated)
   "report.bbl"
   "report.blg"
-["pdflatex"] 1715105805 "/home/joshpattman/Documents/Uni/4_2_Evo/evo-diffusion/report/report.tex" "report.pdf" "report" 1715105806
+["pdflatex"] 1715163312 "/home/joshpattman/Documents/Uni/4_2_Evo/evo-diffusion/report/report.tex" "report.pdf" "report" 1715163313
   "/etc/texmf/web2c/texmf.cnf" 1664991088 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/joshpattman/Documents/Uni/4_2_Evo/evo-diffusion/report/report.tex" 1715105804 29600 beced96da3acb40ee6dfd980af27a069 ""
+  "/home/joshpattman/Documents/Uni/4_2_Evo/evo-diffusion/report/report.tex" 1715163312 32780 5d6c6eff5c345bc2fd0a73064d7bfa81 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1095.tfm" 1136768653 3584 21b378cca2e40816b0e6d74a4dc98f04 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1200.tfm" 1136768653 3584 402da0b29eafbad07963b1224b222f18 ""
@@ -18,7 +18,6 @@
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1440.tfm" 1136768653 3584 3169d30142b88a27d4ab0e3468e963a2 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1728.tfm" 1136768653 3584 3c76ccb63eda935a68ba65ba9da29f1a ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecti1095.tfm" 1136768653 3072 b73d2778cc3af44970de4de5e032d7f6 ""
-  "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcrm1095.tfm" 1136768653 1536 02c06700a42be0f5a28664c7273f82e7 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1246382020 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam10.tfm" 1246382020 916 f87d7c45f9c908e672703b83b72241a3 ""
@@ -72,7 +71,6 @@
   "/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty" 1635798903 56029 3f7889dab51d620aa43177c391b7b190 ""
   "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1644012257 39432 7155514e09a3d69036fac785183a21c2 ""
   "/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1636152094 2971 def0b6c1f0b107b3b936def894055589 ""
-  "/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1636152094 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/share/texmf/fonts/type1/public/cm-super/sfbx1095.pfb" 1670798032 154600 ea54091d31de803b613ba9e80ca51709 ""
   "/usr/share/texmf/fonts/type1/public/cm-super/sfbx1200.pfb" 1670798032 140176 d4962f948b4cc0adf4d3dde77a128c95 ""
   "/usr/share/texmf/fonts/type1/public/cm-super/sfbx1440.pfb" 1670798032 135942 859a90cad7494a1e79c94baf546d7de5 ""
@@ -87,6 +85,9 @@
   "ex-img/final-l2-pucp.png" 1715102267 56299 d3a3cf34f1b0d1a62cadcd3d71771e1f ""
   "ex-img/final-nol2-popv.png" 1715102237 55504 c3d1974d0e3d34885666d67e36a01e69 ""
   "ex-img/final-nol2-pucp.png" 1715102227 52552 41bd1d62dd452a5a7c1f3df62beba9cf ""
+  "ex-img/hebb_weights.png" 1715159175 525 105d04f756478b5069a7c7518308afd2 ""
+  "ex-img/masked_mask.png" 1715159105 1771 593b07d6cde4ff49f6288420c5a89947 ""
+  "ex-img/masked_weights.png" 1715158691 9128 17324138a9b04a9d011a9181f9b06295 ""
   "img/fig2a.png" 1714464722 146142 2c5b166ada98174bbabe5389cc111390 ""
   "img/fig2b.png" 1714464722 15794 1da0b33a2e500796c6877556824267b9 ""
   "img/fig2c.png" 1714464722 16294 7c21f6a390b7655eb2646fe8283acdb8 ""
@@ -100,9 +101,9 @@
   "orig_img/fig2d.png" 1712661028 108408 a16b8fa2afc9b4feca3e0b44faadb936 ""
   "orig_img/fig2e.png" 1712661037 74641 d4edc6e867a9b74a84d31ecfe4d460ee ""
   "orig_img/fig4b.png" 1715084480 270267 8ea522bbdb693aecf41c9ed126cd9438 ""
-  "report.aux" 1715105806 5050 7a302b4e46174d696ba7264f0be86ad9 "pdflatex"
-  "report.bbl" 1715105805 284 3eab70d474b2c19267eb2df9ec4127bf "bibtex report"
-  "report.tex" 1715105804 29600 beced96da3acb40ee6dfd980af27a069 ""
+  "report.aux" 1715163313 5595 4e45a00c533f0107b548fa51f9abb19a "pdflatex"
+  "report.bbl" 1715162191 284 3eab70d474b2c19267eb2df9ec4127bf "bibtex report"
+  "report.tex" 1715163312 32780 5d6c6eff5c345bc2fd0a73064d7bfa81 ""
   (generated)
   "report.aux"
   "report.log"

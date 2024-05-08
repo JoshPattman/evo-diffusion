@@ -80,6 +80,8 @@ func main() {
 			LogEvery:                100,
 			DrawEvery:               12500,
 			EnableBestiary:          true,
+			EnableWeightDiagram:     true,
+			EnableHebbDiagram:       true,
 
 			TransferFuncType:  tf,
 			FileSuffix:        fmt.Sprintf(":%s_%d", testName, repNum),
@@ -92,13 +94,14 @@ func main() {
 		wg.Done()
 	}
 
-	repeats := 20
-	wg.Add(repeats * 4)
+	repeats := 1
+	wg.Add(repeats * 1)
 	for i := 0; i < repeats; i++ {
-		go runtest(MaskedDense, "dense", i, false, 0, 0, 0.0067)
-		go runtest(MaskedDense, "masked", i, false, 0.0038, 0, 0.0058)
-		go runtest(MaskedDense, "dense+l2", i, false, 0, 5.0, 0.0067)
-		go runtest(MaskedDense, "masked+l2", i, i == 0, 0.0038, 5.0, 0.0058)
+		go runtest(MaskedDense, "masked", i, true, 0.0038, 0, 0.0058)
+		//go runtest(MaskedDense, "dense", i, false, 0, 0, 0.0067)
+		//go runtest(MaskedDense, "masked", i, false, 0.0038, 0, 0.0058)
+		//go runtest(MaskedDense, "dense+l2", i, false, 0, 5.0, 0.0067)
+		//go runtest(MaskedDense, "masked+l2", i, i == 0, 0.0038, 5.0, 0.0058)
 	}
 
 	wg.Wait()

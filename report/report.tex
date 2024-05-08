@@ -233,13 +233,13 @@
 
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.9\linewidth]{ex-img/final-nol2-pucp.png}
+        \includegraphics[width=0.8\linewidth]{ex-img/final-nol2-pucp.png}
         \caption{PUCP of the original model compared to that of the new model.} \label{fig:ex-A}
     \end{figure}
 
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.9\linewidth]{ex-img/final-nol2-popv.png}
+        \includegraphics[width=0.8\linewidth]{ex-img/final-nol2-popv.png}
         \caption{POPV of the original model compared to that of the new model.} \label{fig:ex-A2}
     \end{figure}
 
@@ -258,35 +258,49 @@
 
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.9\linewidth]{ex-img/final-l2-pucp.png}
+        \includegraphics[width=0.8\linewidth]{ex-img/final-l2-pucp.png}
         \caption{PUCP of the original model compared to that of the new model.} \label{fig:ex-B}
     \end{figure}
 
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.9\linewidth]{ex-img/final-l2-popv.png}
+        \includegraphics[width=0.8\linewidth]{ex-img/final-l2-popv.png}
         \caption{POPV of the original model compared to that of the new model.} \label{fig:ex-B2}
     \end{figure}
 
     \subsection{Comparison to Hebbian}
+    To verify that the new method of mutation still tends towards the weights achieved through Hebbian learning, the matrix $B$ was examined. Figure \ref{fig:ex-weights} compares the weights achieved through these two methods. It is clear from this figure that the learned weights follow the same pattern as those from Hebbian learning, albeit with a higher degree of noise.
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.45\linewidth]{ex-img/masked_weights.png}
+        \includegraphics[width=0.45\linewidth]{ex-img/hebb_weights.png}
+        \caption{The weights of $B$ ($B_mB_s$) after training. On the left are the trained weights, and on the right are the Hebbian weights.} \label{fig:ex-weights}
+    \end{figure}
+
+    It is also important to inspect the mask of the evolved GRN, to determine if it is having a significant impact on the output. Figure \ref{fig:ex-mask} provides a visualization of the mask after the evolutionary process is complete. The high number of white pixels, which denote a value of one, is likely since the matrix starts initialized as all ones. Interestingly, the pattern of grey pixels, denoting zero, does not seem to mirror the grey pixels in the output image but instead seems to be random. The GRN has certainly made use of the ability to quickly flip gene connections, demonstrated by the frequent black pixels in the image.
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.45\linewidth]{ex-img/masked_mask.png}
+        \caption{The values of $B_s$ after training.} \label{fig:ex-mask}
+    \end{figure}
+
+    \section{Evaluation of Extension}
+    The extension experiments showed that in most scenarios, the new mutation style actually hindered the progress of the GRN. One possible reason for this is that the new mutation style may still have allowed mutations to happen too quickly, even with the reduced original learning rate and low probability. The specific problem presented in this paper is extremely sensitive to the relative learning rate of the GRN when compared to the initial genotype. A possible future solution to this would be to also apply the new mutation style to the genotype, meaning there would be no relative change in learning rate between the two components.
+    
+    After examining the mask matrix of the GRN, it is clear that there is no pattern present in the mask. One of the key reasons for including the mask matrix was to easily allow the GRN to completely disable unimportant connections, however, this did not significantly occur in these experiments. A solution to this problem may be to apply normalization to the mask matrix, instead of the premultiplied matrix. This would encourage the network to disable as many connections as possible, as opposed to providing pressure to reduce the magnitude of all of the weights.
+
+    These experiments broadly failed to prove both hypotheses. It was extremely difficult to determine if the new mutation style was able to generalize more effectively than the original, as the original was already extremely effective at generalization. However, when strong normalization was applied, the extended mutation strategy was able to outperform the original in terms of generalization. Future work may repeat the presented experiments, but with a dataset that the original model finds more difficult to generalize on, thus providing room for improvement. The second hypothesis was also not proven, as the new mutation style did not significantly increase the ability of the GRN to escape local optima. However, this hypothesis was based on heuristic evidence found by examining the outputs of single runs. It became clear throughout the process that the assumption that the GRN frequently became stuck in local optima was incorrect, therefore preventing the hypothesis from being proven. However, the author still believes that the new mutation style may be able to help the GRN escape local optima and that this should be tested in future work.
     
     \section{Conclusion}
-    This study has not only shown the reproducibility of the results obtained by R. Watson et al \cite{original-paper}, but has also contributed some valuable insights into improvements which can be made upon the model of a GRN.
+    This study has not only shown the reproducibility of the results obtained by R. Watson et al \cite{original-paper} but has also contributed some valuable insights into iterative improvements on the model of a GRN.
 
-    \begin{itemize}
-        \item This paper has presented results which agree with the original conclusion that the hill climber tends towards the hebbian weights.
-        \item However, upon implementation of the extension, it was shown that similar results could be obtained even with significanty different weights to the hebbian ones.
-        \item This may suggest that the hill climbing algorithm is not as similar to hebbian learning as previously thought, or that the extension model is not as effective as the original model.
-        \item The extension model was also shown to be faster training and more robust than the fully dense network.
-        \item A major critique of this method is that the weights of -1, 0, and 1 are straying quite far from real-life biology, where each gene may release a concentration of a certain protein.
-        \item However, the aim of these experiemnts was never to make a perfect biological model, but instead a rough approximation which could be used to explore the effects of genetic memory in a GRN.
-        \item Bitdense is also very sensitive to learnging rate, bit probability, and generations before switch, making it harder to tune and get right
-        \item Running some sort of meta hill climber than runs multiple bit dense sims at once, each with own learning rate, and has competition between different sims may be future work, allowing the optimal params to be found.
-        \item It is also very possible to come up with better but less biologically training algorithms, which may be interesting to explore in the future (some sort of GAN-inspired architechture / competitive coevolution)
-    \end{itemize}
+    The reimplementations of the original paper's models and experiments have firmly established that, in the specific scenarios tested, evolution on a GRN is equivalent to Hebbian learning, suggesting that evolution may provide a more 'intelligent' method of learning than originally thought.
 
+    The extension to the original model provided the evolutionary process with the ability to quickly and invert the influence of connections. The results of the experiments show that in many scenarios, the old mutation style outperforms the original, however, when paired with L2 normalization, the new mutation style can outperform the old.
 
-    \section*{Appendix}
+    Overall, this paper has shown that the model of a GRN is a powerful tool for learning and generalizing from data and that the addition of new mutation types may potentially increase the GRN's ability to generalize and escape local optima.
 
     \bibliography{report}
 
