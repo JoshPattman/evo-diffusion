@@ -1,8 +1,38 @@
 \begin{thebibliography}{1}
 
+\bibitem{what-is-grn}
+M.~Levine and E.~H. Davidson, ``Gene regulatory networks for development,''
+  {\em Proceedings of the National Academy of Sciences}, vol.~102, no.~14,
+  pp.~4936--4942, 2005.
+
+\bibitem{grn-1}
+J.~Vohradsky, ``Neural model of the genetic network*,'' {\em Journal of
+  Biological Chemistry}, vol.~276, no.~39, pp.~36168--36173, 2001.
+
+\bibitem{evolving-grns}
+E.~H. Davidson and D.~H. Erwin, ``Gene regulatory networks and the evolution of
+  animal body plans,'' {\em Science}, vol.~311, no.~5762, pp.~796--800, 2006.
+
+\bibitem{evo-speed-grn}
+M.~Pavlicev, J.~P. Kenney-Hunt, E.~A. Norgard, C.~C. Roseman, J.~B. Wolf, and
+  J.~M. Cheverud, ``Genetic variation in pleiotropy: differential epistasis as
+  a source of variation in the allometric relationship between long bone
+  lengths and body weight,'' {\em Evolution}, vol.~62, pp.~199--213, Nov. 2007.
+
+\bibitem{grn-learn-from-past}
+M.~Parter, N.~Kashtan, and U.~Alon, ``Facilitated variation: How evolution
+  learns from past environments to generalize to new environments,'' {\em PLOS
+  Computational Biology}, vol.~4, pp.~1--15, 11 2008.
+
 \bibitem{original-paper}
 R.~A. Watson, G.~P. Wagner, M.~Pavlicev, D.~M. Weinreich, and R.~Mills, ``The
   evolution of phenotypic correlations and “developmental memory”,'' {\em
   Evolution}, vol.~68, no.~4, pp.~1124--1138, 2014.
+
+\bibitem{advanced-paper}
+K.~Kouvaris, J.~Clune, L.~Kounios, M.~Brede, and R.~A. Watson, ``How evolution
+  learns to generalise: Using the principles of learning theory to understand
+  the evolution of developmental organisation,'' {\em PLOS Computational
+  Biology}, vol.~13, pp.~1--20, 04 2017.
 
 \end{thebibliography}
