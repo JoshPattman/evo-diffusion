@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.5.1)  8 MAY 2024 11:15
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.5.1)  8 MAY 2024 11:29
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -191,15 +191,15 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 * layout: <same size as paper>
 * layoutoffset:(h,v)=(0.0pt,0.0pt)
 * modes: 
-* h-part:(L,W,R)=(56.9055pt, 483.69687pt, 56.9055pt)
-* v-part:(T,H,B)=(56.9055pt, 731.23584pt, 56.9055pt)
+* h-part:(L,W,R)=(49.79231pt, 497.92325pt, 49.79231pt)
+* v-part:(T,H,B)=(49.79231pt, 745.46222pt, 49.79231pt)
 * \paperwidth=597.50787pt
 * \paperheight=845.04684pt
-* \textwidth=483.69687pt
-* \textheight=731.23584pt
-* \oddsidemargin=-15.36449pt
-* \evensidemargin=-15.36449pt
-* \topmargin=-52.36449pt
+* \textwidth=497.92325pt
+* \textheight=745.46222pt
+* \oddsidemargin=-22.47768pt
+* \evensidemargin=-22.47768pt
+* \topmargin=-59.47768pt
 * \headheight=12.0pt
 * \headsep=25.0pt
 * \topskip=11.0pt
@@ -225,53 +225,60 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 17.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Underfull \vbox (badness 1163) has occurred while \output is active []
+Underfull \vbox (badness 1424) has occurred while \output is active []
 
  [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
 
 ]
-<orig_img/fig2a.png, id=14, 731.73375pt x 565.11125pt>
+<orig_img/fig2a.png, id=15, 731.73375pt x 565.11125pt>
 File: orig_img/fig2a.png Graphic file (type png)
 <use orig_img/fig2a.png>
 Package pdftex.def Info: orig_img/fig2a.png  used on input line 78.
-(pdftex.def)             Requested size: 113.68623pt x 87.79828pt.
-<img/fig2a.png, id=16, 436.5108pt x 305.7021pt>
+(pdftex.def)             Requested size: 117.10052pt x 90.42827pt.
+<img/fig2a.png, id=17, 436.5108pt x 305.7021pt>
 File: img/fig2a.png Graphic file (type png)
 <use img/fig2a.png>
 Package pdftex.def Info: img/fig2a.png  used on input line 79.
-(pdftex.def)             Requested size: 113.68623pt x 79.61594pt.
- [2 <./orig_img/fig2a.png> <./img/fig2a.png>]
-<orig_img/fig2b.png, id=25, 703.62875pt x 555.07375pt>
+(pdftex.def)             Requested size: 117.10052pt x 82.0089pt.
+<orig_img/fig2b.png, id=18, 703.62875pt x 555.07375pt>
 File: orig_img/fig2b.png Graphic file (type png)
 <use orig_img/fig2b.png>
 Package pdftex.def Info: orig_img/fig2b.png  used on input line 87.
-(pdftex.def)             Requested size: 113.68623pt x 89.67752pt.
-<img/fig2b.png, id=26, 403.2666pt x 333.8874pt>
+(pdftex.def)             Requested size: 117.10052pt x 92.3709pt.
+<img/fig2b.png, id=19, 403.2666pt x 333.8874pt>
 File: img/fig2b.png Graphic file (type png)
 <use img/fig2b.png>
 Package pdftex.def Info: img/fig2b.png  used on input line 88.
-(pdftex.def)             Requested size: 113.68623pt x 94.12466pt.
-<orig_img/fig2c.png, id=27, 713.66624pt x 556.0775pt>
+(pdftex.def)             Requested size: 117.10052pt x 96.95222pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<orig_img/fig2c.png, id=20, 713.66624pt x 556.0775pt>
 File: orig_img/fig2c.png Graphic file (type png)
 <use orig_img/fig2c.png>
 Package pdftex.def Info: orig_img/fig2c.png  used on input line 94.
-(pdftex.def)             Requested size: 113.68623pt x 88.57541pt.
-<img/fig2c.png, id=28, 403.2666pt x 333.8874pt>
+(pdftex.def)             Requested size: 117.10052pt x 91.23972pt.
+<img/fig2c.png, id=21, 403.2666pt x 333.8874pt>
 File: img/fig2c.png Graphic file (type png)
 <use img/fig2c.png>
 Package pdftex.def Info: img/fig2c.png  used on input line 95.
-(pdftex.def)             Requested size: 113.68623pt x 94.12466pt.
+(pdftex.def)             Requested size: 117.10052pt x 96.95222pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[2 <./orig_img/fig2a.png> <./img/fig2a.png>]
 <orig_img/fig2d.png, id=29, 944.52875pt x 627.34375pt>
 File: orig_img/fig2d.png Graphic file (type png)
 <use orig_img/fig2d.png>
 Package pdftex.def Info: orig_img/fig2d.png  used on input line 103.
-(pdftex.def)             Requested size: 213.16214pt x 141.57701pt.
+(pdftex.def)             Requested size: 219.56396pt x 145.8272pt.
 <img/fig2d.png, id=30, 635.2533pt x 338.2236pt>
 File: img/fig2d.png Graphic file (type png)
 <use img/fig2d.png>
 Package pdftex.def Info: img/fig2d.png  used on input line 104.
-(pdftex.def)             Requested size: 213.16214pt x 113.49269pt.
+(pdftex.def)             Requested size: 219.56396pt x 116.89886pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
@@ -280,109 +287,90 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 File: orig_img/fig2e.png Graphic file (type png)
 <use orig_img/fig2e.png>
 Package pdftex.def Info: orig_img/fig2e.png  used on input line 112.
-(pdftex.def)             Requested size: 106.58107pt x 90.59311pt.
+(pdftex.def)             Requested size: 109.78198pt x 93.31929pt.
 <img/fig2e.png, id=32, 434.3427pt x 333.8874pt>
 File: img/fig2e.png Graphic file (type png)
 <use img/fig2e.png>
 Package pdftex.def Info: img/fig2e.png  used on input line 113.
-(pdftex.def)             Requested size: 106.58107pt x 81.92795pt.
+(pdftex.def)             Requested size: 109.78198pt x 84.38869pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
 
 <orig_img/ex4_targets.png, id=33, 1756.5625pt x 240.9pt>
 File: orig_img/ex4_targets.png Graphic file (type png)
 <use orig_img/ex4_targets.png>
 Package pdftex.def Info: orig_img/ex4_targets.png  used on input line 122.
-(pdftex.def)             Requested size: 165.79317pt x 22.73502pt.
-
+(pdftex.def)             Requested size: 170.77238pt x 23.41873pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[3 <./orig_img/fig2b.png> <./img/fig2b.png> <./orig_img/fig2c.png> <./img/fig2c.png> <./orig_img/fig2d.png> <./img/fig2d.png> <./orig_img/fig2e.png> <./img/fig2e.png>]
-<orig_img/fig4b.png, id=45, 630.355pt x 545.03625pt>
+[3 <./orig_img/fig2b.png> <./img/fig2b.png> <./orig_img/fig2c.png> <./img/fig2c.png> <./orig_img/fig2d.png> <./img/fig2d.png> <./orig_img/fig2e.png> <./img/fig2e.png> <./orig_img/ex4_targets.png>]
+<orig_img/fig4b.png, id=46, 630.355pt x 545.03625pt>
 File: orig_img/fig4b.png Graphic file (type png)
 <use orig_img/fig4b.png>
 Package pdftex.def Info: orig_img/fig4b.png  used on input line 146.
-(pdftex.def)             Requested size: 165.79317pt x 143.35277pt.
-<img/fig4b.png, id=46, 111.41624pt x 111.41624pt>
+(pdftex.def)             Requested size: 170.77238pt x 147.65244pt.
+<img/fig4b.png, id=47, 111.41624pt x 111.41624pt>
 File: img/fig4b.png Graphic file (type png)
 <use img/fig4b.png>
 Package pdftex.def Info: img/fig4b.png  used on input line 152.
-(pdftex.def)             Requested size: 165.79317pt x 165.8064pt.
+(pdftex.def)             Requested size: 170.77238pt x 170.7859pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[4 <./orig_img/ex4_targets.png> <./orig_img/fig4b.png> <./img/fig4b.png (PNG copy)>] [5]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
+[4 <./orig_img/fig4b.png> <./img/fig4b.png (PNG copy)>] [5]
 <ex-img/final-nol2-pucp.png, id=55, 416.9979pt x 323.0469pt>
 File: ex-img/final-nol2-pucp.png Graphic file (type png)
 <use ex-img/final-nol2-pucp.png>
 Package pdftex.def Info: ex-img/final-nol2-pucp.png  used on input line 236.
-(pdftex.def)             Requested size: 189.47946pt x 146.7894pt.
+(pdftex.def)             Requested size: 170.77238pt x 132.29727pt.
 <ex-img/final-nol2-popv.png, id=56, 416.9979pt x 323.0469pt>
 File: ex-img/final-nol2-popv.png Graphic file (type png)
 <use ex-img/final-nol2-popv.png>
 Package pdftex.def Info: ex-img/final-nol2-popv.png  used on input line 242.
-(pdftex.def)             Requested size: 189.47946pt x 146.7894pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[6 <./ex-img/final-nol2-pucp.png>]
-<ex-img/final-l2-pucp.png, id=61, 416.9979pt x 323.0469pt>
+(pdftex.def)             Requested size: 170.77238pt x 132.29727pt.
+ [6 <./ex-img/final-nol2-pucp.png> <./ex-img/final-nol2-popv.png>]
+<ex-img/final-l2-pucp.png, id=62, 416.9979pt x 323.0469pt>
 File: ex-img/final-l2-pucp.png Graphic file (type png)
 <use ex-img/final-l2-pucp.png>
 Package pdftex.def Info: ex-img/final-l2-pucp.png  used on input line 261.
-(pdftex.def)             Requested size: 189.47946pt x 146.7894pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<ex-img/final-l2-popv.png, id=62, 416.9979pt x 323.0469pt>
+(pdftex.def)             Requested size: 170.77238pt x 132.29727pt.
+<ex-img/final-l2-popv.png, id=63, 416.9979pt x 323.0469pt>
 File: ex-img/final-l2-popv.png Graphic file (type png)
 <use ex-img/final-l2-popv.png>
 Package pdftex.def Info: ex-img/final-l2-popv.png  used on input line 267.
-(pdftex.def)             Requested size: 189.47946pt x 146.7894pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<ex-img/masked_weights.png, id=63, 100.375pt x 100.375pt>
+(pdftex.def)             Requested size: 170.77238pt x 132.29727pt.
+<ex-img/masked_weights.png, id=64, 100.375pt x 100.375pt>
 File: ex-img/masked_weights.png Graphic file (type png)
 <use ex-img/masked_weights.png>
 Package pdftex.def Info: ex-img/masked_weights.png  used on input line 276.
-(pdftex.def)             Requested size: 106.58107pt x 106.58842pt.
-<ex-img/hebb_weights.png, id=64, 100.375pt x 100.375pt>
+(pdftex.def)             Requested size: 109.78198pt x 109.78946pt.
+<ex-img/hebb_weights.png, id=65, 100.375pt x 100.375pt>
 File: ex-img/hebb_weights.png Graphic file (type png)
 <use ex-img/hebb_weights.png>
 Package pdftex.def Info: ex-img/hebb_weights.png  used on input line 277.
-(pdftex.def)             Requested size: 106.58107pt x 106.58842pt.
+(pdftex.def)             Requested size: 109.78198pt x 109.78946pt.
+
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<ex-img/masked_mask.png, id=65, 100.375pt x 100.375pt>
+<ex-img/masked_mask.png, id=66, 100.375pt x 100.375pt>
 File: ex-img/masked_mask.png Graphic file (type png)
 <use ex-img/masked_mask.png>
 Package pdftex.def Info: ex-img/masked_mask.png  used on input line 285.
-(pdftex.def)             Requested size: 106.58107pt x 106.58842pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[7 <./ex-img/final-nol2-popv.png> <./ex-img/final-l2-pucp.png> <./ex-img/final-l2-popv.png>] (./report.bbl) [8 <./ex-img/masked_weights.png (PNG copy)> <./ex-img/hebb_weights.png (PNG copy)> <./ex-img/masked_mask.png (PNG copy)>] (./report.aux) ) 
+(pdftex.def)             Requested size: 109.78198pt x 109.78946pt.
+[7 <./ex-img/final-l2-pucp.png> <./ex-img/final-l2-popv.png> <./ex-img/masked_weights.png (PNG copy)> <./ex-img/hebb_weights.png (PNG copy)> <./ex-img/masked_mask.png (PNG copy)>] (./report.bbl) [8] (./report.aux) ) 
 Here is how much of TeX's memory you used:
  3977 strings out of 478287
  57343 string characters out of 5849290
- 365022 words of memory out of 5000000
+ 366035 words of memory out of 5000000
  22125 multiletter control sequences out of 15000+600000
  481544 words of font info for 60 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  55i,11n,62p,1353b,251s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1200.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1728.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfti1095.pfb>
-Output written on report.pdf (8 pages, 1275748 bytes).
+Output written on report.pdf (8 pages, 1275699 bytes).
 PDF statistics:
  129 PDF objects out of 1000 (max. 8388607)
  58 compressed objects within 1 object stream
